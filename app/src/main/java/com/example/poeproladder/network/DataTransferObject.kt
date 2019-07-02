@@ -27,7 +27,7 @@ data class PoeCharacterJson(
     @Json(name = "class") val poeClass: String,
     @Json(name = "id") val characterId: String,
     @Json(name = "experience") val experience: Long,
-    @Json(name = "depth") val depth: PoeDepthJson
+    @Json(name = "depth") val depth: PoeDepthJson = PoeDepthJson(-1,-1)
 )
 
 @JsonClass(generateAdapter = true)
@@ -50,8 +50,8 @@ data class PoeAccountTwitchJson(
 
 @JsonClass(generateAdapter = true)
 data class PoeDepthJson(
-    @Json(name = "default") val default: Int,
-    @Json(name = "solo") val solo: Int
+    @Json(name = "default") val default: Int = -1,
+    @Json(name = "solo") val solo: Int = -1
 )
 
 

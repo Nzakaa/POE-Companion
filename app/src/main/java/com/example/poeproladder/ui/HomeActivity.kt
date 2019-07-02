@@ -7,10 +7,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
 import com.example.poeproladder.R
 import com.example.poeproladder.network.Network
+import com.example.poeproladder.network.NetworkLadderContainerJson
 import com.example.poeproladder.util.BuildConfig.LEAGUE
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class HomeActivity : AppCompatActivity() {
 
@@ -30,8 +34,9 @@ class HomeActivity : AppCompatActivity() {
             }
             R.id.navigation_notifications -> {
                 textMessage.setText(R.string.title_notifications)
+                Log.d("Result", "Successful call with total ladder positions = 0")
                 apiRequest()
-                apiCallRequest()
+//                apiCallRequest()
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -55,8 +60,8 @@ class HomeActivity : AppCompatActivity() {
     fun apiRequest() {
         val ladder = Network.gggApi
         val disposable = ladder.getLadder(LEAGUE, 10)
-            .observeOn(AndroidSchedulers.mainThread())
             .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 result ->
                 Log.d("Result", "Successful call with total ladder positions = ${result.total}")
@@ -69,20 +74,19 @@ class HomeActivity : AppCompatActivity() {
         compositeDisposable.add(disposable)
     }
 
-    fun apiCallRequest() {
-        val ladder = Network.gggApi
-        val disposable = ladder.getLadder(LEAGUE, 10)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeOn(Schedulers.io())
-            .subscribe({
-                    result ->
-                Log.d("Result", "Successful call with total ladder positions = ${result.total}")
-            }, {
-                    error ->
-                error.printStackTrace()
-                Log.d("Result", "Successful call with total ladder positions = 0")
-            })
-
-        compositeDisposable.add(disposable)
-    }
+//    fun apiCallRequest() {
+//        val ladder = Network.gggApi
+//        val call = ladder.getLadder(LEAGUE, 10)
+//        call.enqueue(object: Callback<NetworkLadderContainerJson> {
+//            override fun onFailure(call: Call<NetworkLadderContainerJson>, t: Throwable) {
+//                t.printStackTrace()
+//            }
+//            override fun onResponse(
+//                call: Call<NetworkLadderContainerJson>,
+//                response: Response<NetworkLadderContainerJson>
+//            ) {
+//                Log.d("Result", "Total account number = ${response.body()?.total}")
+//            }
+//        })
+//    }
 }
