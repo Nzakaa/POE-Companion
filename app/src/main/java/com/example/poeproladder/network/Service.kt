@@ -1,9 +1,9 @@
 package com.example.poeproladder.network
 
-import com.example.poeproladder.util.BuildConfig.GGGAPIURL
+import com.example.poeproladder.util.BuildConfig.CHARACTERWINDOWURL
+import com.example.poeproladder.util.BuildConfig.LADDERAPIURL
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import io.reactivex.Observable
 import io.reactivex.Single
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -18,19 +18,44 @@ interface GGGApi {
     fun getLadder(@Path("id") leagueId: String, @Query("limit") limit: Int?): Single<NetworkLadderContainerJson>
 }
 
+interface CharacterWindowApi {
+    @GET("/character-window/get-characters")
+    fun getAccountInfo(@Query("accountName") accountName: String?): Single<List<CharacterWindowCharacterJson>>
+
+    @GET("/character-window/get-items")
+    fun getCharacterInfo(
+        @Query("accountName") account: String?,
+        @Query("character") characterName: String?
+    ): Single<CharacterWindowItemsJson>
+
+    @GET("/character-window/get-characters")
+    fun getCharacterInfoCall(@Query("character") characterName: String?
+    ): Call<CharacterWindowItemsJson>
+}
+
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
     .build()
 
 object Network {
-    val gggApi by lazy {
+    val ladderApi by lazy {
         val retrofit = Retrofit.Builder()
-            .baseUrl(GGGAPIURL)
+            .baseUrl(LADDERAPIURL)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
 
         return@lazy retrofit.create(GGGApi::class.java)
+    }
+
+    val characterApi by lazy {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(CHARACTERWINDOWURL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .build()
+
+        return@lazy retrofit.create(CharacterWindowApi::class.java)
     }
 
 }

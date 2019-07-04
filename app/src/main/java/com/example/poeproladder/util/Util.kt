@@ -2,7 +2,9 @@ package com.example.poeproladder.util
 
 object BuildConfig {
     const val LEAGUE = "Legion"
-    const val GGGAPIURL = "http://api.pathofexile.com"
+    const val LADDERAPIURL = "http://api.pathofexile.com"
+    const val CHARACTERWINDOWURL = "https://www.pathofexile.com"
+
 
 }
 

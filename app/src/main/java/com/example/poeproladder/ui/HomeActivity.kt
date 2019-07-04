@@ -6,8 +6,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
 import com.example.poeproladder.R
+import com.example.poeproladder.network.CharacterWindowItemsJson
 import com.example.poeproladder.network.Network
-import com.example.poeproladder.network.NetworkLadderContainerJson
 import com.example.poeproladder.util.BuildConfig.LEAGUE
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -25,17 +25,20 @@ class HomeActivity : AppCompatActivity() {
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
-                textMessage.setText(R.string.title_home)
+                textMessage.setText(R.string.recent_characters)
+                fetchCharacterItemsApi()
+//                fetchCharacterItemsApiCall()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_dashboard -> {
-                textMessage.setText(R.string.title_dashboard)
+                textMessage.setText(R.string.account)
+                fetchAccountApi()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_notifications -> {
-                textMessage.setText(R.string.title_notifications)
+                textMessage.setText(R.string.ladder)
                 Log.d("Result", "Successful call with total ladder positions = 0")
-                apiRequest()
+                fetchLadderApi()
 //                apiCallRequest()
                 return@OnNavigationItemSelectedListener true
             }
@@ -57,36 +60,76 @@ class HomeActivity : AppCompatActivity() {
         compositeDisposable.dispose()
     }
 
-    fun apiRequest() {
-        val ladder = Network.gggApi
-        val disposable = ladder.getLadder(LEAGUE, 10)
+    fun fetchLadderApi() {
+        val ladderApi = Network.ladderApi
+        val disposable = ladderApi.getLadder(LEAGUE, 10)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                result ->
+            .subscribe({ result ->
                 Log.d("Result", "Successful call with total ladder positions = ${result.total}")
-            }, {
-                error ->
+                textMessage.setText(result.total.toString())
+            }, { error ->
                 error.printStackTrace()
                 Log.d("Result", "Successful call with total ladder positions = 0")
+                textMessage.setText(error.printStackTrace().toString())
             })
 
         compositeDisposable.add(disposable)
     }
 
-//    fun apiCallRequest() {
-//        val ladder = Network.gggApi
-//        val call = ladder.getLadder(LEAGUE, 10)
-//        call.enqueue(object: Callback<NetworkLadderContainerJson> {
-//            override fun onFailure(call: Call<NetworkLadderContainerJson>, t: Throwable) {
-//                t.printStackTrace()
-//            }
-//            override fun onResponse(
-//                call: Call<NetworkLadderContainerJson>,
-//                response: Response<NetworkLadderContainerJson>
-//            ) {
-//                Log.d("Result", "Total account number = ${response.body()?.total}")
-//            }
-//        })
-//    }
+    fun fetchAccountApi() {
+        val accountApi = Network.characterApi
+        val disposable = accountApi.getAccountInfo("nzaka")
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ result ->
+                Log.d("Result", "Successful call with total ladder positions = ${result.size}")
+                textMessage.text = result[0].name
+            }, { error ->
+                error.printStackTrace()
+                Log.d("Result", "Successful call with total ladder positions = 0")
+                textMessage.setText("Error")
+            })
+
+        compositeDisposable.add(disposable)
+    }
+
+    fun fetchCharacterItemsApi() {
+        val accountApi = Network.characterApi
+        val disposable = accountApi.getCharacterInfo( "nzaka", "vvideHardo")
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ result ->
+                Log.d("Result", "Successful call = ${result.items.size}")
+                textMessage.text = result.items.size.toString()
+            }, { error ->
+                error.printStackTrace()
+                Log.d("Result", "Successful call with total ladder positions = 0")
+                textMessage.setText("Error")
+            })
+
+        compositeDisposable.add(disposable)
+    }
+
+    fun fetchCharacterItemsApiCall() {
+        val accountApi = Network.characterApi
+        val call = accountApi.getCharacterInfoCall("vvideHardo")
+
+        call.enqueue(object : Callback<CharacterWindowItemsJson> {
+            override fun onFailure(call: Call<CharacterWindowItemsJson>, t: Throwable) {
+                t.printStackTrace()
+                textMessage.setText("Error")
+            }
+
+            override fun onResponse(
+                call: Call<CharacterWindowItemsJson>,
+                response: Response<CharacterWindowItemsJson>
+            ) {
+                textMessage.text = response.body()!!.items[1].sockets.size.toString()
+            }
+        })
+
+    }
+
+//
 }
