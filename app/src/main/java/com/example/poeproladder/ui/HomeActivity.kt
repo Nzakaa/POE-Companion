@@ -6,9 +6,16 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
 import com.example.poeproladder.R
+import com.example.poeproladder.database.CharacterDatabase
+import com.example.poeproladder.database.CharactersDb
+import com.example.poeproladder.database.getDatabase
+import com.example.poeproladder.network.CharacterWindowCharacterJson
 import com.example.poeproladder.network.CharacterWindowItemsJson
 import com.example.poeproladder.network.Network
+import com.example.poeproladder.network.asDatabaseModel
 import com.example.poeproladder.util.BuildConfig.LEAGUE
+import io.reactivex.Completable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -19,8 +26,8 @@ import retrofit2.Response
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var textMessage: TextView
-
     var compositeDisposable = CompositeDisposable()
+    lateinit var database: CharacterDatabase
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -32,14 +39,22 @@ class HomeActivity : AppCompatActivity() {
             }
             R.id.navigation_dashboard -> {
                 textMessage.setText(R.string.account)
-                fetchAccountApi()
+                fetchAccountApi("nzaka")
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_notifications -> {
                 textMessage.setText(R.string.ladder)
-                Log.d("Result", "Successful call with total ladder positions = 0")
-                fetchLadderApi()
-//                apiCallRequest()
+                database.characterDao.getCharacters()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({result ->
+                        textMessage.setText(result.size.toString())
+                    },{ error ->
+                        error.printStackTrace()
+                    })
+//                val dbQuery = getCharactersFromDbRx()
+//                textMessage.text = dbQuery.size.toString()
+//                fetchLadderApi()
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -49,8 +64,11 @@ class HomeActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
+        database = getDatabase(application)
+        wipeDatabase()
+
+        val navView: BottomNavigationView = findViewById(R.id.nav_view)
         textMessage = findViewById(R.id.message)
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
     }
@@ -77,14 +95,15 @@ class HomeActivity : AppCompatActivity() {
         compositeDisposable.add(disposable)
     }
 
-    fun fetchAccountApi() {
+    fun fetchAccountApi(accountName: String) {
         val accountApi = Network.characterApi
-        val disposable = accountApi.getAccountInfo("nzaka")
+        val disposable = accountApi.getAccountInfo(accountName)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ result ->
                 Log.d("Result", "Successful call with total ladder positions = ${result.size}")
-                textMessage.text = result[0].name
+                textMessage.text = result[1].name
+                insertCharactersIntoDbRx(result, accountName)
             }, { error ->
                 error.printStackTrace()
                 Log.d("Result", "Successful call with total ladder positions = 0")
@@ -102,6 +121,10 @@ class HomeActivity : AppCompatActivity() {
             .subscribe({ result ->
                 Log.d("Result", "Successful call = ${result.items.size}")
                 textMessage.text = result.items.size.toString()
+//                val character = result
+//                database.characterDao.insertCharacter(character.asDatabaseModel())
+//                val responseDb = database.characterDao.getCharacters()
+//                textMessage.text = "Character database size: ${responseDb.size}"
             }, { error ->
                 error.printStackTrace()
                 Log.d("Result", "Successful call with total ladder positions = 0")
@@ -111,24 +134,37 @@ class HomeActivity : AppCompatActivity() {
         compositeDisposable.add(disposable)
     }
 
-    fun fetchCharacterItemsApiCall() {
-        val accountApi = Network.characterApi
-        val call = accountApi.getCharacterInfoCall("vvideHardo")
+    fun insertCharactersIntoDbRx(
+        result: List<CharacterWindowCharacterJson>,
+        accountName:String
+    ){
+        val characters = result.map {
+            it.asDatabaseModel(accountName)
+        }
+        Completable.fromAction {
+            database.characterDao.insertCharacters(characters)
+        }.subscribeOn(Schedulers.io())
+            .subscribe()
+    }
 
-        call.enqueue(object : Callback<CharacterWindowItemsJson> {
-            override fun onFailure(call: Call<CharacterWindowItemsJson>, t: Throwable) {
-                t.printStackTrace()
-                textMessage.setText("Error")
-            }
+    fun getCharactersFromDbRx(): List<CharactersDb>{
+        var characters: List<CharactersDb> = ArrayList()
+        val disposable = database.characterDao.getCharacters()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({result ->
+                characters = result
+            },{ error ->
+                error.printStackTrace()
+            })
+        return characters
+    }
 
-            override fun onResponse(
-                call: Call<CharacterWindowItemsJson>,
-                response: Response<CharacterWindowItemsJson>
-            ) {
-                textMessage.text = response.body()!!.items[1].sockets.size.toString()
-            }
-        })
-
+    fun wipeDatabase() {
+        Completable.fromAction {
+            database.characterDao.deleteAll()
+        }.subscribeOn(Schedulers.io())
+            .subscribe()
     }
 
 //

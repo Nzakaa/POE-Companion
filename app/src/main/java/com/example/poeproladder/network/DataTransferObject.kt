@@ -1,7 +1,9 @@
 package com.example.poeproladder.network
 
+import com.example.poeproladder.database.CharacterInformationDb
+import com.example.poeproladder.database.CharactersDb
+import com.example.poeproladder.database.ItemsDb
 import com.squareup.moshi.*
-import java.lang.NullPointerException
 
 // Helper objects to parse ladder
 @JsonClass(generateAdapter = true)
@@ -64,6 +66,11 @@ class CharacterWindowCharacterJson(
     val level: Int
 )
 
+//@JsonClass(generateAdapter = true)
+//class CharacterWindowCharactersJson(
+//    val characters: List<CharacterWindowCharacterJson>
+//)
+
 @JsonClass(generateAdapter = true)
 class CharacterWindowItemsJson(
     val items: List<ItemPoeJson>
@@ -85,7 +92,7 @@ class ItemPoeJson(
     @Json(name = "frameType") val itemRarity: Int = -1,  //frameType 0=white, 1=magic, 2=rare, 3=unique
     val inventoryId: String,
     val socketedItems: List<SocketedItemJson> = ArrayList()
-    )
+)
 
 @JsonClass(generateAdapter = true)
 class ItemSocketJson(
@@ -101,75 +108,10 @@ class ItemPropertiesJson(
     val values: Array<Array<Any>>
 )
 
-
-//@JsonClass(generateAdapter = true)
-//class ItemPropertyValuesJson(
-//    val name: String,
-//    val values: Array<Array<Any>>
-//)
-
-//class ItemPropertyValuesJsonAdapter {
-//    @FromJson
-//    fun fromJson(jsonReader: JsonReader, delegate: JsonAdapter<ItemPropertyValuesJson>): ItemPropertyValuesJson? {
-//        val value = jsonReader.nextString()
-//        return if (value.startsWith("in-progress")) Stage.IN_PROGRESS else delegate.fromJsonValue(value)
-//    }
-//}
-
-//class ItemPropertiesJsonJsonAdapter(moshi: Moshi) : JsonAdapter<ItemPropertiesJson>() {
-//    private val options: JsonReader.Options = JsonReader.Options.of("name", "values")
-//
-//    private val stringAdapter: JsonAdapter<String> =
-//        moshi.adapter<String>(String::class.java, kotlin.collections.emptySet(), "name")
-//
-//    private val listOfItemPropertyValuesJsonAdapter: JsonAdapter<List<ItemPropertyValuesJson>> =
-//        moshi.adapter<List<ItemPropertyValuesJson>>(Types.newParameterizedType(List::class.java, ItemPropertyValuesJson::class.java), kotlin.collections.emptySet(), "values")
-//
-//    override fun toString(): String = "GeneratedJsonAdapter(ItemPropertiesJson)"
-//
-//    override fun fromJson(reader: JsonReader): ItemPropertiesJson {
-//        var name: String? = null
-//        var values: List<ItemPropertyValuesJson>? = null
-//        reader.beginObject()
-//        while (reader.hasNext()) {
-//            when (reader.selectName(options)) {
-//                0 -> name = stringAdapter.fromJson(reader) ?: throw JsonDataException("Non-null value 'name' was null at ${reader.path}")
-//                1 -> values = listOfItemPropertyValuesJsonAdapter.fromJson(reader) ?: throw JsonDataException("Non-null value 'values' was null at ${reader.path}")
-//                -1 -> {
-//                    // Unknown name, skip it.
-//                    reader.skipName()
-//                    reader.skipValue()
-//                }
-//            }
-//        }
-//        reader.endObject()
-//        var result = ItemPropertiesJson(
-//            name = name ?: throw JsonDataException("Required property 'name' missing at ${reader.path}"))
-//        result = ItemPropertiesJson(
-//            name = name,
-//            values = values ?: result.values)
-//        return result
-//    }
-//
-//    override fun toJson(writer: JsonWriter, value: ItemPropertiesJson?) {
-//        if (value == null) {
-//            throw NullPointerException("value was null! Wrap in .nullSafe() to write nullable values.")
-//        }
-//        writer.beginObject()
-//        writer.name("name")
-//        stringAdapter.toJson(writer, value.name)
-//        writer.name("values")
-//        listOfItemPropertyValuesJsonAdapter.toJson(writer, value.values)
-//        writer.endObject()
-//    }
-//}
-
 @JsonClass(generateAdapter = true)
 class ValuesJson(
     val value: Any
 )
-
-
 
 // Ask Boris about smart way of getting level and quality values from array of gem properties
 @JsonClass(generateAdapter = true)
@@ -180,7 +122,7 @@ class SocketedItemJson(
     val colour: String,
     @Json(name = "category") val category: ItemCategoryJson = ItemCategoryJson(),
     @Json(name = "properties") val socketedItem: List<ItemPropertiesJson> = ArrayList()
-    )
+)
 
 @JsonClass(generateAdapter = true)
 class ItemCategoryJson(
@@ -188,6 +130,103 @@ class ItemCategoryJson(
 )
 
 
+/*
+    Network to Domain and Database Models converter
+*/
+
+
+fun CharacterWindowItemsJson.asDatabaseModel(): List<ItemsDb> {
+    val equippedItems = items.filter {
+        it.inventoryId != "MainInventory"
+    }
+    return equippedItems.map {
+        ItemsDb(
+            id = null,
+            characterId = null,
+            width = it.width,
+            height = it.height,
+            itemLevel = it.itemLevel,
+            icon = it.icon,
+            sockets = it.sockets,
+            name = it.name,
+            base = it.base,
+            properties = it.properties,
+            implicitMods = it.implicitMods,
+            craftedMods = it.craftedMods,
+            enchantedMods = it.enchantedMods,
+            itemRarity = it.itemRarity,
+            inventoryId = it.inventoryId,
+            socketedItems = it.socketedItems
+        )
+    }
+}
+
+fun CharacterWindowCharacterJson.asDatabaseModel(accountName: String): CharactersDb {
+    return CharactersDb(
+        id = null,
+        characterName = this.name,
+        league = this.league,
+        classPoe = this.classPoe,
+        level = this.level,
+        accountName = accountName
+    )
+
+}
+
+//fun CharacterWindowItemsJson.asDatabaseModel(): CharactersDb {
+//    val equippedItems = items.filter {
+//        it.inventoryId != "MainInventory"
+//    }
+//    val itemsEquipped = equippedItems.map {
+//        ItemDb(
+//            width = it.width,
+//            height = it.height,
+//            itemLevel = it.itemLevel,
+//            icon = it.icon,
+//            sockets = it.sockets,
+//            characterName = it.characterName,
+//            base = it.base,
+//            properties = it.properties,
+//            implicitMods = it.implicitMods,
+//            craftedMods = it.craftedMods,
+//            enchantedMods = it.enchantedMods,
+//            itemRarity = it.itemRarity,
+//            inventoryId = it.inventoryId,
+//            socketedItems = it.socketedItems
+//        )
+//    }.toTypedArray()
+//    val itemsDb: ItemsDb = ItemsDb(itemsEquipped)
+//
+//    val character = CharacterInformationDb(
+//        characterName = this.character.characterName,
+//        league = this.character.league,
+//        classPoe = this.character.classPoe,
+//        level = this.character.level
+//    )
+//
+//    return CharactersDb(null, character, itemsDb)
+//}
+
+
+//val characterName: String,
+//    val league: String,
+//    val classPoe: String,
+//    val level: Int
+
+//val width: Int,
+//    val height: Int,
+//    val itemLevel: Int = 0,
+//    val icon: String,   //TODO
+//    val sockets: List<ItemSocketJson> = ArrayList(),
+//    val characterName: String,
+//    val base: String,
+//    val properties: List<ItemPropertiesJson> = ArrayList(),
+//    val implicitMods: List<String> = ArrayList(),
+//    val craftedMods: List<String> = ArrayList(),
+//    val enchantedMods: List<String> = ArrayList(),
+//    val itemRarity: Int = -1,  //frameType 0=white, 1=magic, 2=rare, 3=unique
+//    val inventoryId: String,
+//    val socketedItems: List<SocketedItemJson> = ArrayList()
 
 
 
