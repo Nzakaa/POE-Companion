@@ -2,6 +2,7 @@ package com.example.poeproladder.ui
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
@@ -10,51 +11,40 @@ import com.example.poeproladder.database.CharacterDatabase
 import com.example.poeproladder.database.CharactersDb
 import com.example.poeproladder.database.getDatabase
 import com.example.poeproladder.network.CharacterWindowCharacterJson
-import com.example.poeproladder.network.CharacterWindowItemsJson
 import com.example.poeproladder.network.Network
 import com.example.poeproladder.network.asDatabaseModel
 import com.example.poeproladder.util.BuildConfig.LEAGUE
 import io.reactivex.Completable
-import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class HomeActivity : AppCompatActivity() {
 
-    private lateinit var textMessage: TextView
+    //TODO Keep track of all disposables
     var compositeDisposable = CompositeDisposable()
-    lateinit var database: CharacterDatabase
+
+    private lateinit var database: CharacterDatabase
+
+    private lateinit var textMessage: TextView
+    private lateinit var accountButton: Button
+    private lateinit var itemsButton: Button
+    private lateinit var accountDbButton: Button
+    private lateinit var itemsDbButton: Button
+    private lateinit var clearDbButton: Button
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
                 textMessage.setText(R.string.recent_characters)
-                fetchCharacterItemsApi()
-//                fetchCharacterItemsApiCall()
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_dashboard -> {
                 textMessage.setText(R.string.account)
-                fetchAccountApi("nzaka")
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_notifications -> {
                 textMessage.setText(R.string.ladder)
-                database.characterDao.getCharacters()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({result ->
-                        textMessage.setText(result.size.toString())
-                    },{ error ->
-                        error.printStackTrace()
-                    })
-//                val dbQuery = getCharactersFromDbRx()
-//                textMessage.text = dbQuery.size.toString()
-//                fetchLadderApi()
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -70,6 +60,23 @@ class HomeActivity : AppCompatActivity() {
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         textMessage = findViewById(R.id.message)
+        accountButton = findViewById<Button>(R.id.button_account).apply{
+            setOnClickListener { fetchAccountApi("nzaka") }
+        }
+        accountDbButton = findViewById<Button>(R.id.button_account_db).apply {
+            setOnClickListener{
+                textMessage.text = "parsing DB"
+                getCharactersFromDbRx()
+
+            }
+        }
+        itemsButton = findViewById<Button>(R.id.button_items)
+        itemsDbButton = findViewById<Button>(R.id.button_account_db)
+        clearDbButton = findViewById<Button>(R.id.button_clear_db).apply {
+            setOnClickListener{
+                wipeDatabase()
+            }
+        }
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
     }
 
@@ -102,7 +109,11 @@ class HomeActivity : AppCompatActivity() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ result ->
                 Log.d("Result", "Successful call with total ladder positions = ${result.size}")
-                textMessage.text = result[1].name
+                val builder = StringBuilder()
+                for (item in result) {
+                    builder.append("${item.name}\n")
+                }
+                textMessage.text = builder.toString()
                 insertCharactersIntoDbRx(result, accountName)
             }, { error ->
                 error.printStackTrace()
@@ -147,24 +158,41 @@ class HomeActivity : AppCompatActivity() {
             .subscribe()
     }
 
-    fun getCharactersFromDbRx(): List<CharactersDb>{
-        var characters: List<CharactersDb> = ArrayList()
+    fun getCharactersFromDbRx() {
         val disposable = database.characterDao.getCharacters()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({result ->
-                characters = result
+                when  {
+                    result.isEmpty() -> textMessage.text = "Database is empty"
+                    else -> {
+                        val builder = StringBuilder()
+                        for (item in result) {
+                            builder.append("${item.characterName}\n")
+                        }
+                        textMessage.text = builder.toString()
+                    }
+                }
+
             },{ error ->
                 error.printStackTrace()
+                textMessage.text = error.printStackTrace().toString()
             })
-        return characters
+        compositeDisposable.add(disposable)
     }
 
     fun wipeDatabase() {
-        Completable.fromAction {
+        val disposable = Completable.fromAction {
             database.characterDao.deleteAll()
         }.subscribeOn(Schedulers.io())
-            .subscribe()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                textMessage.text = "Database cleared"
+            },{
+                it.printStackTrace()
+                textMessage.text = it.printStackTrace().toString()
+            })
+        compositeDisposable.add(disposable)
     }
 
 //
