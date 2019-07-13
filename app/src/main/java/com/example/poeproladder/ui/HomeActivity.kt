@@ -11,6 +11,7 @@ import com.example.poeproladder.database.CharacterDatabase
 import com.example.poeproladder.database.CharactersDb
 import com.example.poeproladder.database.getDatabase
 import com.example.poeproladder.network.CharacterWindowCharacterJson
+import com.example.poeproladder.network.CharacterWindowItemsJson
 import com.example.poeproladder.network.Network
 import com.example.poeproladder.network.asDatabaseModel
 import com.example.poeproladder.util.BuildConfig.LEAGUE
@@ -32,6 +33,8 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var accountDbButton: Button
     private lateinit var itemsDbButton: Button
     private lateinit var clearDbButton: Button
+
+    private lateinit var characterList: List<CharactersDb>
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -60,23 +63,30 @@ class HomeActivity : AppCompatActivity() {
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         textMessage = findViewById(R.id.message)
-        accountButton = findViewById<Button>(R.id.button_account).apply{
+
+        accountButton = findViewById<Button>(R.id.button_account).apply {
             setOnClickListener { fetchAccountApi("nzaka") }
         }
+
         accountDbButton = findViewById<Button>(R.id.button_account_db).apply {
-            setOnClickListener{
+            setOnClickListener {
                 textMessage.text = "parsing DB"
                 getCharactersFromDbRx()
+            }
+        }
 
-            }
+        itemsButton = findViewById<Button>(R.id.button_items).apply {
+            setOnClickListener { fetchCharacterItemsApi() }
         }
-        itemsButton = findViewById<Button>(R.id.button_items)
-        itemsDbButton = findViewById<Button>(R.id.button_account_db)
+
+        itemsDbButton = findViewById<Button>(R.id.button_items_db).apply {
+            setOnClickListener { fetchItemsFromDbRx("vvideHardo") }
+        }
+
         clearDbButton = findViewById<Button>(R.id.button_clear_db).apply {
-            setOnClickListener{
-                wipeDatabase()
-            }
+            setOnClickListener { wipeDatabase() }
         }
+
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
     }
 
@@ -126,12 +136,12 @@ class HomeActivity : AppCompatActivity() {
 
     fun fetchCharacterItemsApi() {
         val accountApi = Network.characterApi
-        val disposable = accountApi.getCharacterInfo( "nzaka", "vvideHardo")
+        val disposable = accountApi.getCharacterInfo("nzaka", "vvideHardo")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ result ->
                 Log.d("Result", "Successful call = ${result.items.size}")
-                textMessage.text = result.items.size.toString()
+                inserItemsIntoDbRx(result)
 //                val character = result
 //                database.characterDao.insertCharacter(character.asDatabaseModel())
 //                val responseDb = database.characterDao.getCharacters()
@@ -147,8 +157,8 @@ class HomeActivity : AppCompatActivity() {
 
     fun insertCharactersIntoDbRx(
         result: List<CharacterWindowCharacterJson>,
-        accountName:String
-    ){
+        accountName: String
+    ) {
         val characters = result.map {
             it.asDatabaseModel(accountName)
         }
@@ -162,8 +172,8 @@ class HomeActivity : AppCompatActivity() {
         val disposable = database.characterDao.getCharacters()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({result ->
-                when  {
+            .subscribe({ result ->
+                when {
                     result.isEmpty() -> textMessage.text = "Database is empty"
                     else -> {
                         val builder = StringBuilder()
@@ -171,14 +181,31 @@ class HomeActivity : AppCompatActivity() {
                             builder.append("${item.characterName}\n")
                         }
                         textMessage.text = builder.toString()
+                        characterList = result
                     }
                 }
 
-            },{ error ->
+            }, { error ->
                 error.printStackTrace()
                 textMessage.text = error.printStackTrace().toString()
             })
         compositeDisposable.add(disposable)
+    }
+
+    fun getCharacterFromDbRx(): Long? {
+        var characterId: Long? = null
+        val disposable = database.characterDao.getCharacter("vvideHardo")
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ result ->
+                textMessage.text = "name = ${result.characterName}, id = ${result.id}"
+                characterId = result.id
+            }, { error ->
+                error.printStackTrace()
+                textMessage.text = error.printStackTrace().toString()
+            })
+        compositeDisposable.add(disposable)
+        return characterId
     }
 
     fun wipeDatabase() {
@@ -188,12 +215,58 @@ class HomeActivity : AppCompatActivity() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 textMessage.text = "Database cleared"
-            },{
+            }, {
                 it.printStackTrace()
                 textMessage.text = it.printStackTrace().toString()
             })
+
+        val disposable2 = Completable.fromAction {
+            database.itemsDao.deleteAll()
+        }.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                textMessage.text = "Database cleared"
+            }, {
+                it.printStackTrace()
+                textMessage.text = it.printStackTrace().toString()
+            })
+
         compositeDisposable.add(disposable)
     }
+
+    fun inserItemsIntoDbRx(items: CharacterWindowItemsJson) {
+        var characterId: Long? = null
+        for (character in characterList) {
+            if (character.characterName == "vvideHardo") characterId = character.id
+        }
+
+        val itemsDb = items.asDatabaseModel(characterId)
+        val disposable = Completable.fromAction {
+            database.itemsDao.insertItems(itemsDb)
+        }.subscribeOn(Schedulers.io())
+            .subscribe()
+        compositeDisposable.add(disposable)
+    }
+
+    fun fetchItemsFromDbRx(characterName: String) {
+        val disposable = database.itemsDao.getItems(characterName)
+//        val disposable = database.itemsDao.getItemsAll()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(
+                { result ->
+                    val builder = StringBuilder()
+                    for (item in result.characterItems) {
+                        builder.append("${item.name}\n")
+                    }
+                    textMessage.text = builder.toString()
+                },
+                { error ->
+                    error.printStackTrace()
+                })
+        compositeDisposable.add(disposable)
+    }
+
 
 //
 }

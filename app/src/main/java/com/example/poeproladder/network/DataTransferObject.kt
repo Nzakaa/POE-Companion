@@ -1,6 +1,5 @@
 package com.example.poeproladder.network
 
-import com.example.poeproladder.database.CharacterInformationDb
 import com.example.poeproladder.database.CharactersDb
 import com.example.poeproladder.database.ItemsDb
 import com.squareup.moshi.*
@@ -135,28 +134,28 @@ class ItemCategoryJson(
 */
 
 
-fun CharacterWindowItemsJson.asDatabaseModel(): List<ItemsDb> {
+fun CharacterWindowItemsJson.asDatabaseModel(characterId: Long?): List<ItemsDb> {
     val equippedItems = items.filter {
         it.inventoryId != "MainInventory"
     }
     return equippedItems.map {
         ItemsDb(
             id = null,
-            characterId = null,
+            characterId = characterId,
             width = it.width,
             height = it.height,
             itemLevel = it.itemLevel,
             icon = it.icon,
             sockets = it.sockets,
             name = it.name,
-            base = it.base,
-            properties = it.properties,
-            implicitMods = it.implicitMods,
-            craftedMods = it.craftedMods,
-            enchantedMods = it.enchantedMods,
-            itemRarity = it.itemRarity,
-            inventoryId = it.inventoryId,
-            socketedItems = it.socketedItems
+            base = it.base
+//            properties = it.properties,
+//            implicitMods = it.implicitMods,
+//            craftedMods = it.craftedMods,
+//            enchantedMods = it.enchantedMods,
+//            itemRarity = it.itemRarity,
+//            inventoryId = it.inventoryId,
+//            socketedItems = it.socketedItems
         )
     }
 }

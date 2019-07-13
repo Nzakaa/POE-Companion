@@ -10,7 +10,7 @@ interface CharacterDao {
     fun getCharacters(): Single<List<CharactersDb>>
 
     @Query("select * from CharactersDb where characterName = :characterName")
-    fun getCharacter(characterName: String): CharactersDb
+    fun getCharacter(characterName: String): Single<CharactersDb>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertCharacter(character: CharactersDb)
@@ -22,9 +22,28 @@ interface CharacterDao {
     fun deleteAll()
 }
 
-@Database(entities = [CharactersDb::class], version = 1)
+@Dao
+interface ItemsDao {
+    @Transaction
+    @Query("select * from CharactersDb where characterName = :characterName")
+    fun getItems(characterName: String): Single<CharacterItemsDb>
+
+    @Transaction
+    @Query("select * from CharactersDb" )
+    fun getItemsAll(): Single<List<CharacterItemsDb>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertItems(items: List<ItemsDb>)
+
+    @Query("delete from ItemsDb")
+    fun deleteAll()
+}
+
+@Database(entities = [CharactersDb::class, ItemsDb::class], version = 1)
+@TypeConverters(SocketsTypeConverter::class)
 abstract class CharacterDatabase : RoomDatabase() {
     abstract val characterDao: CharacterDao
+    abstract val itemsDao: ItemsDao
 }
 
 @Volatile
