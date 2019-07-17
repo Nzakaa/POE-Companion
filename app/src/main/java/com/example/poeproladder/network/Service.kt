@@ -31,9 +31,6 @@ interface CharacterWindowApi {
         @Query("character") characterName: String?
     ): Single<CharacterWindowItemsJson>
 
-    @GET("/character-window/get-characters")
-    fun getCharacterInfoCall(@Query("character") characterName: String?
-    ): Call<CharacterWindowItemsJson>
 }
 
 private val moshi = Moshi.Builder()

@@ -1,6 +1,6 @@
 package com.example.poeproladder.network
 
-import com.example.poeproladder.database.CharactersDb
+import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.ItemsDb
 import com.squareup.moshi.*
 
@@ -134,35 +134,34 @@ class ItemCategoryJson(
 */
 
 
-fun CharacterWindowItemsJson.asDatabaseModel(characterId: Long?): List<ItemsDb> {
+fun CharacterWindowItemsJson.asDatabaseModel(characterName: String): List<ItemsDb> {
     val equippedItems = items.filter {
         it.inventoryId != "MainInventory"
     }
     return equippedItems.map {
         ItemsDb(
             id = null,
-            characterId = characterId,
+            characterName = characterName,
             width = it.width,
             height = it.height,
             itemLevel = it.itemLevel,
             icon = it.icon,
             sockets = it.sockets,
             name = it.name,
-            base = it.base
-//            properties = it.properties,
-//            implicitMods = it.implicitMods,
-//            craftedMods = it.craftedMods,
-//            enchantedMods = it.enchantedMods,
-//            itemRarity = it.itemRarity,
-//            inventoryId = it.inventoryId,
-//            socketedItems = it.socketedItems
+            base = it.base,
+            properties = it.properties,
+            implicitMods = it.implicitMods,
+            craftedMods = it.craftedMods,
+            enchantedMods = it.enchantedMods,
+            itemRarity = it.itemRarity,
+            inventoryId = it.inventoryId,
+            socketedItems = it.socketedItems
         )
     }
 }
 
-fun CharacterWindowCharacterJson.asDatabaseModel(accountName: String): CharactersDb {
-    return CharactersDb(
-        id = null,
+fun CharacterWindowCharacterJson.asDatabaseModel(accountName: String): CharacterDb {
+    return CharacterDb(
         characterName = this.name,
         league = this.league,
         classPoe = this.classPoe,
@@ -172,7 +171,7 @@ fun CharacterWindowCharacterJson.asDatabaseModel(accountName: String): Character
 
 }
 
-//fun CharacterWindowItemsJson.asDatabaseModel(): CharactersDb {
+//fun CharacterWindowItemsJson.asDatabaseModel(): CharacterDb {
 //    val equippedItems = items.filter {
 //        it.inventoryId != "MainInventory"
 //    }
@@ -203,7 +202,7 @@ fun CharacterWindowCharacterJson.asDatabaseModel(accountName: String): Character
 //        level = this.character.level
 //    )
 //
-//    return CharactersDb(null, character, itemsDb)
+//    return CharacterDb(null, character, itemsDb)
 //}
 
 

@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.widget.TextView
 import com.example.poeproladder.R
 import com.example.poeproladder.database.CharacterDatabase
-import com.example.poeproladder.database.CharactersDb
+import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.getDatabase
 import com.example.poeproladder.network.CharacterWindowCharacterJson
 import com.example.poeproladder.network.CharacterWindowItemsJson
@@ -34,7 +34,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var itemsDbButton: Button
     private lateinit var clearDbButton: Button
 
-    private lateinit var characterList: List<CharactersDb>
+    private lateinit var characterList: List<CharacterDb>
 
     private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -141,11 +141,8 @@ class HomeActivity : AppCompatActivity() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ result ->
                 Log.d("Result", "Successful call = ${result.items.size}")
+                textMessage.text = "Items count: ${result.items.size}"
                 inserItemsIntoDbRx(result)
-//                val character = result
-//                database.characterDao.insertCharacter(character.asDatabaseModel())
-//                val responseDb = database.characterDao.getCharacters()
-//                textMessage.text = "Character database size: ${responseDb.size}"
             }, { error ->
                 error.printStackTrace()
                 Log.d("Result", "Successful call with total ladder positions = 0")
@@ -163,13 +160,13 @@ class HomeActivity : AppCompatActivity() {
             it.asDatabaseModel(accountName)
         }
         Completable.fromAction {
-            database.characterDao.insertCharacters(characters)
+            database.characterDao.saveCharacters(characters)
         }.subscribeOn(Schedulers.io())
             .subscribe()
     }
 
     fun getCharactersFromDbRx() {
-        val disposable = database.characterDao.getCharacters()
+        val disposable = database.characterDao.getRecentCharacters()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ result ->
@@ -192,25 +189,25 @@ class HomeActivity : AppCompatActivity() {
         compositeDisposable.add(disposable)
     }
 
-    fun getCharacterFromDbRx(): Long? {
-        var characterId: Long? = null
-        val disposable = database.characterDao.getCharacter("vvideHardo")
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ result ->
-                textMessage.text = "name = ${result.characterName}, id = ${result.id}"
-                characterId = result.id
-            }, { error ->
-                error.printStackTrace()
-                textMessage.text = error.printStackTrace().toString()
-            })
-        compositeDisposable.add(disposable)
-        return characterId
-    }
+//    fun getCharacterFromDbRx(): Long? {
+//        var characterId: Long? = null
+//        val disposable = database.characterDao.getAccountCharacters("vvideHardo")
+//            .subscribeOn(Schedulers.io())
+//            .observeOn(AndroidSchedulers.mainThread())
+//            .subscribe({ result ->
+//                textMessage.text = "name = ${result.characterName}, id = ${result.id}"
+//                characterId = result.id
+//            }, { error ->
+//                error.printStackTrace()
+//                textMessage.text = error.printStackTrace().toString()
+//            })
+//        compositeDisposable.add(disposable)
+//        return characterId
+//    }
 
     fun wipeDatabase() {
         val disposable = Completable.fromAction {
-            database.characterDao.deleteAll()
+            database.characterDao.deleteAllCharacters()
         }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -221,7 +218,7 @@ class HomeActivity : AppCompatActivity() {
             })
 
         val disposable2 = Completable.fromAction {
-            database.itemsDao.deleteAll()
+            database.itemsDao.deleteAllItems()
         }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -235,29 +232,30 @@ class HomeActivity : AppCompatActivity() {
     }
 
     fun inserItemsIntoDbRx(items: CharacterWindowItemsJson) {
-        var characterId: Long? = null
-        for (character in characterList) {
-            if (character.characterName == "vvideHardo") characterId = character.id
-        }
+        var characterName: String = "vvideHardo"
 
-        val itemsDb = items.asDatabaseModel(characterId)
+        val itemsDb = items.asDatabaseModel(characterName)
         val disposable = Completable.fromAction {
-            database.itemsDao.insertItems(itemsDb)
+            database.itemsDao.saveItems(itemsDb)
         }.subscribeOn(Schedulers.io())
             .subscribe()
         compositeDisposable.add(disposable)
     }
 
     fun fetchItemsFromDbRx(characterName: String) {
-        val disposable = database.itemsDao.getItems(characterName)
-//        val disposable = database.itemsDao.getItemsAll()
+        val disposable = database.itemsDao.getItemsByName(characterName)
+//        val disposable = database.itemsDao.getAllItems()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(
                 { result ->
                     val builder = StringBuilder()
                     for (item in result.characterItems) {
-                        builder.append("${item.name}\n")
+                        if (builder.isNotEmpty()) builder.append(", ")
+                        when {
+                            item.name == "" -> builder.append("${item.base}")
+                            else -> builder.append("${item.name} ${item.base}")
+                        }
                     }
                     textMessage.text = builder.toString()
                 },

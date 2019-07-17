@@ -2,45 +2,50 @@ package com.example.poeproladder.database
 
 import android.content.Context
 import androidx.room.*
+import io.reactivex.Maybe
 import io.reactivex.Single
 
 @Dao
 interface CharacterDao {
-    @Query("select * from CharactersDb")
-    fun getCharacters(): Single<List<CharactersDb>>
+    @Query("select * from CharacterDb")
+    fun getRecentCharacters(): Maybe<List<CharacterDb>>
 
-    @Query("select * from CharactersDb where characterName = :characterName")
-    fun getCharacter(characterName: String): Single<CharactersDb>
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertCharacter(character: CharactersDb)
+    @Query("select * from CharacterDb where accountName = :accountName")
+    fun getAccountCharacters(accountName: String): Maybe<List<CharacterDb>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertCharacters(characters: List<CharactersDb>)
+    fun saveCharacter(character: CharacterDb)
 
-    @Query("delete from CharactersDb")
-    fun deleteAll()
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun saveCharacters(characters: List<CharacterDb>)
+
+    @Query("delete from CharacterDb")
+    fun deleteAllCharacters()
 }
 
 @Dao
 interface ItemsDao {
     @Transaction
-    @Query("select * from CharactersDb where characterName = :characterName")
-    fun getItems(characterName: String): Single<CharacterItemsDb>
+    @Query("select * from CharacterDb where characterName = :characterName")
+    fun getItemsByName(characterName: String): Maybe<CharacterItemsDb>
 
     @Transaction
-    @Query("select * from CharactersDb" )
-    fun getItemsAll(): Single<List<CharacterItemsDb>>
+    @Query("select * from CharacterDb")
+    fun getAllItems(): Maybe<List<CharacterItemsDb>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertItems(items: List<ItemsDb>)
+    fun saveItems(items: List<ItemsDb>)
 
     @Query("delete from ItemsDb")
-    fun deleteAll()
+    fun deleteAllItems()
 }
 
-@Database(entities = [CharactersDb::class, ItemsDb::class], version = 1)
-@TypeConverters(SocketsTypeConverter::class)
+@Database(entities = [CharacterDb::class, ItemsDb::class], version = 1, exportSchema = false)
+@TypeConverters(
+    SocketsTypeConverter::class,
+    PropertiesTypeConverter::class,
+    listStringTypeConverter::class,
+    SocketedItemJsonTypeConverter::class)
 abstract class CharacterDatabase : RoomDatabase() {
     abstract val characterDao: CharacterDao
     abstract val itemsDao: ItemsDao
