@@ -10,10 +10,18 @@ import com.example.poeproladder.R
 import com.example.poeproladder.database.CharacterDatabase
 import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.getDatabase
+import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
+import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractorImpl
+import com.example.poeproladder.interactors.Network.CharacterNetworkInteractor
+import com.example.poeproladder.interactors.Network.CharacterNetworkInteractorImpl
 import com.example.poeproladder.network.CharacterWindowCharacterJson
 import com.example.poeproladder.network.CharacterWindowItemsJson
 import com.example.poeproladder.network.Network
 import com.example.poeproladder.network.asDatabaseModel
+import com.example.poeproladder.repository.CharactersRepository
+import com.example.poeproladder.repository.CharactersRepositoryImpl
+import com.example.poeproladder.session.SessionService
+import com.example.poeproladder.session.SessionServiceImpl
 import com.example.poeproladder.util.BuildConfig.LEAGUE
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,9 +31,16 @@ import io.reactivex.schedulers.Schedulers
 class HomeActivity : AppCompatActivity() {
 
     //TODO Keep track of all disposables
+    val TAG = "HomeActivity"
     var compositeDisposable = CompositeDisposable()
 
     private lateinit var database: CharacterDatabase
+
+    private lateinit var repository: CharactersRepository
+    private lateinit var session: SessionService
+    private lateinit var databaseInteractor: CharacterDatabaseInteractor
+    private lateinit var networkInteractor: CharacterNetworkInteractor
+
 
     private lateinit var textMessage: TextView
     private lateinit var accountButton: Button
@@ -59,6 +74,13 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         database = getDatabase(application)
+        session = SessionServiceImpl.getInstance(applicationContext)
+        databaseInteractor = CharacterDatabaseInteractorImpl
+            .getInstance(database, session)
+        networkInteractor = CharacterNetworkInteractorImpl
+            .getInstance(database, Network, databaseInteractor)
+        repository = CharactersRepositoryImpl
+            .getInstance(session, databaseInteractor, networkInteractor)
         wipeDatabase()
 
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
@@ -80,7 +102,29 @@ class HomeActivity : AppCompatActivity() {
         }
 
         itemsDbButton = findViewById<Button>(R.id.button_items_db).apply {
-            setOnClickListener { fetchItemsFromDbRx("vvideHardo") }
+//            setOnClickListener { fetchItemsFromDbRx("vvideHardo") }
+            setOnClickListener {
+                compositeDisposable.add(repository.getItemsByName()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                        {result ->
+                            val builder = StringBuilder()
+                            for (item in result.characterItems) {
+                                if (builder.isNotEmpty()) builder.append(", ")
+                                when {
+                                    item.name == "" -> builder.append("${item.base}")
+                                    else -> builder.append("${item.name} ${item.base}")
+                                }
+                            }
+                            textMessage.text = builder.toString()
+                        } ,
+                        {error -> error.printStackTrace()},
+                        {   Log.d(TAG, "OBserverComplete")
+                            textMessage.text = "Stopped observing"
+                        }
+                    ))
+            }
         }
 
         clearDbButton = findViewById<Button>(R.id.button_clear_db).apply {
@@ -142,10 +186,10 @@ class HomeActivity : AppCompatActivity() {
             .subscribe({ result ->
                 Log.d("Result", "Successful call = ${result.items.size}")
                 textMessage.text = "Items count: ${result.items.size}"
-                inserItemsIntoDbRx(result)
+                insertItemsIntoDbRx(result)
             }, { error ->
                 error.printStackTrace()
-                Log.d("Result", "Successful call with total ladder positions = 0")
+                Log.d("Result", "Error during network call")
                 textMessage.setText("Error")
             })
 
@@ -222,16 +266,17 @@ class HomeActivity : AppCompatActivity() {
         }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                textMessage.text = "Database cleared"
+                textMessage.text = "Database cleared1"
             }, {
                 it.printStackTrace()
                 textMessage.text = it.printStackTrace().toString()
             })
 
         compositeDisposable.add(disposable)
+        compositeDisposable.add(disposable2)
     }
 
-    fun inserItemsIntoDbRx(items: CharacterWindowItemsJson) {
+    fun insertItemsIntoDbRx(items: CharacterWindowItemsJson) {
         var characterName: String = "vvideHardo"
 
         val itemsDb = items.asDatabaseModel(characterName)
@@ -244,7 +289,6 @@ class HomeActivity : AppCompatActivity() {
 
     fun fetchItemsFromDbRx(characterName: String) {
         val disposable = database.itemsDao.getItemsByName(characterName)
-//        val disposable = database.itemsDao.getAllItems()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe(

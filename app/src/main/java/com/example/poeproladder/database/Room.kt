@@ -2,6 +2,7 @@ package com.example.poeproladder.database
 
 import android.content.Context
 import androidx.room.*
+import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
@@ -27,7 +28,7 @@ interface CharacterDao {
 interface ItemsDao {
     @Transaction
     @Query("select * from CharacterDb where characterName = :characterName")
-    fun getItemsByName(characterName: String): Maybe<CharacterItemsDb>
+    fun getItemsByName(characterName: String): Single<CharacterItemsDb>
 
     @Transaction
     @Query("select * from CharacterDb")

@@ -1,11 +1,19 @@
 package com.example.poeproladder.repository
 
+import android.util.Log
 import com.example.poeproladder.database.CharacterItemsDb
 import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
 import com.example.poeproladder.interactors.Network.CharacterNetworkInteractor
+import com.example.poeproladder.network.CharacterWindowItemsJson
 import com.example.poeproladder.session.SessionService
-import io.reactivex.Observable
+import com.squareup.moshi.JsonDataException
+import io.reactivex.*
 import io.reactivex.disposables.Disposable
+import io.reactivex.schedulers.Schedulers
+import retrofit2.HttpException
+import java.lang.Exception
+import java.net.ConnectException
+import java.net.SocketTimeoutException
 
 class CharactersRepositoryImpl(
     val session: SessionService,
@@ -17,25 +25,52 @@ class CharactersRepositoryImpl(
         val accountName = session.getAccount()
         val characterName = session.getCharacter()
         val databaseObservable =
-            databaseInteractor.getItemsByName(characterName!!).toObservable()
+            databaseInteractor.getItemsByName(characterName!!)
         val networkObservable =
-            networkInteractor.getCharacterItems(accountName!!, characterName).toObservable()
+            networkInteractor.getCharacterItems(accountName!!, characterName)
         if (!isNetworkInProgress()!!) {
-            disposable = Observable.concat(databaseObservable, networkObservable)
-                .firstElement()
-                .subscribe()
+            disposable = databaseObservable
+                .subscribeOn(Schedulers.io())
+                .subscribe({ result ->
+                    when {
+                        result.characterItems.isNotEmpty() -> databaseInteractor.observableOnNext(result)
+                        else -> {
+                            networkObservable
+                                .subscribeOn(Schedulers.io())
+                                .subscribe{result -> databaseInteractor.saveItems(result, characterName)}
+
+                        }
+                    }
+                },
+                    { error -> Log.d("error", "${error.localizedMessage}") })
         }
-        return databaseInteractor.getItemsByNameObservable()
+        return databaseInteractor.getCharacterItemsObservable()
     }
 
     fun isNetworkInProgress(): Boolean? {
-        return disposable?.let { !it.isDisposed }
+        val currentDisposable = disposable
+        return currentDisposable != null && !currentDisposable.isDisposed
+    }
+
+    fun handleNonHttpException(throwable: Throwable) {
+        if (throwable is HttpException) {
+
+        } else if (throwable is JsonDataException) {
+
+        } else if (throwable is SocketTimeoutException) {
+
+        } else if (throwable is ConnectException) {
+
+        } else {
+            throw RuntimeException(throwable)
+        }
     }
 
     companion object {
         private var INSTANCE: CharactersRepositoryImpl? = null
 
-        @JvmStatic fun getInstance(
+        @JvmStatic
+        fun getInstance(
             session: SessionService,
             databaseInteractor: CharacterDatabaseInteractor,
             networkInteractor: CharacterNetworkInteractor

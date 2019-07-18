@@ -7,8 +7,10 @@ import com.example.poeproladder.network.CharacterWindowCharacterJson
 import com.example.poeproladder.network.CharacterWindowItemsJson
 import com.example.poeproladder.network.asDatabaseModel
 import com.example.poeproladder.session.SessionService
+import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 
@@ -16,7 +18,6 @@ class CharacterDatabaseInteractorImpl(
     val database: CharacterDatabase,
     val session: SessionService
 ) : CharacterDatabaseInteractor {
-
     val observable = BehaviorSubject.create<CharacterItemsDb>()
 
     override fun saveCharacters(characters: List<CharacterWindowCharacterJson>, accountName: String) {
@@ -26,6 +27,14 @@ class CharacterDatabaseInteractorImpl(
         database.characterDao.saveCharacters(charactersDb)
     }
 
+    override fun getCharacterItemsObservable(): Observable<CharacterItemsDb> {
+        return observable
+    }
+
+    override fun observableOnNext(items: CharacterItemsDb) {
+        observable.onNext(items)
+    }
+
     override fun saveCharacter(character: CharacterDb) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -33,17 +42,15 @@ class CharacterDatabaseInteractorImpl(
     override fun saveItems(items: CharacterWindowItemsJson, characterName: String) {
         val itemsDb = items.asDatabaseModel(characterName)
         database.itemsDao.saveItems(itemsDb)
+        getItemsByName(characterName)
+            .subscribeOn(Schedulers.io())
+            .subscribe { result ->  observable.onNext(result)}
     }
 
-    override fun getItemsByName(characterName: String): Maybe<CharacterItemsDb> {
+    override fun getItemsByName(characterName: String): Single<CharacterItemsDb> {
         return database.itemsDao.getItemsByName(characterName)
-            .subscribeOn(Schedulers.io())
-            .doOnSuccess { data ->
-                session.saveAccount(data.character.accountName)
-                session.saveCharacter(data.character.characterName)
-                observable.onNext(data)
-            }
     }
+
 
     override fun getAccountCharacters(accountName: String): Maybe<List<CharacterDb>> {
         return database.characterDao.getAccountCharacters(accountName)
@@ -54,9 +61,6 @@ class CharacterDatabaseInteractorImpl(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getItemsByNameObservable(): Observable<CharacterItemsDb> {
-        return observable
-    }
 
     companion object {
         private var INSTANCE: CharacterDatabaseInteractorImpl? = null

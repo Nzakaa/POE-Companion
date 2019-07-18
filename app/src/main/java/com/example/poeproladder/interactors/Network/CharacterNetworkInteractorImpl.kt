@@ -21,7 +21,6 @@ class CharacterNetworkInteractorImpl (
 
     override fun getCharacterItems(accountName: String, characterName: String): Single<CharacterWindowItemsJson> {
         return network.characterApi.getCharacterInfo(accountName, characterName)
-            .doOnSuccess{data -> databaseInteractor.saveItems(data, characterName)}
     }
 
     companion object {

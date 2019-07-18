@@ -26,12 +26,12 @@ class SessionServiceImpl(
 
     override fun getCharacter(): String? {
         return PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(ACCOUNT_KEY, "nzaka")
+            .getString(ACCOUNT_KEY, "vvideHardo")
     }
 
     override fun getAccount(): String? {
         return PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(CHARACTER_KEY, "vvidehardo")    }
+            .getString(CHARACTER_KEY, "Nzaka")    }
 
     companion object {
         val ACCOUNT_KEY = "Account"
