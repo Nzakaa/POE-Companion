@@ -52,7 +52,7 @@ class CharacterDatabaseInteractorImpl(
     }
 
 
-    override fun getAccountCharacters(accountName: String): Maybe<List<CharacterDb>> {
+    override fun getAccountCharacters(accountName: String): Single<List<CharacterDb>> {
         return database.characterDao.getAccountCharacters(accountName)
             .subscribeOn(Schedulers.io())
     }

@@ -46,7 +46,6 @@ object Network {
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
-
         return@lazy retrofit.create(GGGApi::class.java)
     }
 
@@ -56,8 +55,6 @@ object Network {
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
-
         return@lazy retrofit.create(CharacterWindowApi::class.java)
     }
-
 }

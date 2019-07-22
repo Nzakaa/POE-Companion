@@ -12,7 +12,7 @@ interface CharacterDao {
     fun getRecentCharacters(): Maybe<List<CharacterDb>>
 
     @Query("select * from CharacterDb where accountName = :accountName")
-    fun getAccountCharacters(accountName: String): Maybe<List<CharacterDb>>
+    fun getAccountCharacters(accountName: String): Single<List<CharacterDb>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveCharacter(character: CharacterDb)

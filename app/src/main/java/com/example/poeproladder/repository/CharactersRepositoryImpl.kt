@@ -1,9 +1,11 @@
 package com.example.poeproladder.repository
 
 import android.util.Log
+import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.CharacterItemsDb
 import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
 import com.example.poeproladder.interactors.Network.CharacterNetworkInteractor
+import com.example.poeproladder.network.CharacterWindowCharacterJson
 import com.example.poeproladder.network.CharacterWindowItemsJson
 import com.example.poeproladder.session.SessionService
 import com.squareup.moshi.JsonDataException
@@ -37,14 +39,23 @@ class CharactersRepositoryImpl(
                         else -> {
                             networkObservable
                                 .subscribeOn(Schedulers.io())
-                                .subscribe{result -> databaseInteractor.saveItems(result, characterName)}
-
+                                .subscribe{result -> databaseInteractor.saveItems(result, characterName)
+                                }
                         }
                     }
                 },
                     { error -> Log.d("error", "${error.localizedMessage}") })
         }
         return databaseInteractor.getCharacterItemsObservable()
+    }
+
+    override fun saveAccountData(characters: List<CharacterWindowCharacterJson>, accountName: String) {
+        databaseInteractor.saveCharacters(characters, accountName)
+    }
+
+    override fun getAccountData(accountName: String): Single<List<CharacterDb>> {
+        return networkInteractor.getCharacters(accountName)
+
     }
 
     fun isNetworkInProgress(): Boolean? {

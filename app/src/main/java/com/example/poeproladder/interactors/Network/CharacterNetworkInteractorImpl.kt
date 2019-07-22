@@ -1,21 +1,33 @@
 package com.example.poeproladder.interactors.Network
 
 import com.example.poeproladder.database.CharacterDatabase
+import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
 import com.example.poeproladder.network.CharacterWindowCharacterJson
 import com.example.poeproladder.network.CharacterWindowItemsJson
 import com.example.poeproladder.network.Network
 import io.reactivex.Single
 
-class CharacterNetworkInteractorImpl (
-    val database: CharacterDatabase,
-    val network: Network,
-    val databaseInteractor: CharacterDatabaseInteractor
+class CharacterNetworkInteractorImpl : CharacterNetworkInteractor {
 
-): CharacterNetworkInteractor {
-    override fun getCharacters(accountName: String): Single<List<CharacterWindowCharacterJson>> {
+    private val database: CharacterDatabase
+    private val network: Network
+    private val databaseInteractor: CharacterDatabaseInteractor
+
+    private constructor(
+        database: CharacterDatabase,
+        network: Network,
+        databaseInteractor: CharacterDatabaseInteractor
+    ) {
+        this.database = database
+        this.network = network
+        this.databaseInteractor = databaseInteractor
+    }
+
+    override fun getCharacters(accountName: String): Single<List<CharacterDb>> {
         return network.characterApi.getAccountInfo(accountName)
-            .doOnSuccess { data -> databaseInteractor.saveCharacters(data, accountName)}
+            .map{ data -> databaseInteractor.saveCharacters(data, accountName) }
+            .flatMap { databaseInteractor.getAccountCharacters(accountName) }
 
     }
 
