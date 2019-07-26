@@ -1,14 +1,13 @@
 package com.example.poeproladder
 
 interface BaseContract {
-    interface BasePresenter<in T> {
-        fun attachView(view: T)
+    interface BasePresenter {
         fun detachView()
         fun onBind()
         fun onStop()
     }
 
     interface BaseView {
-        fun showError()
+        fun showError(error: String)
     }
 }

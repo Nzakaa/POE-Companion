@@ -1,20 +1,22 @@
-package com.example.poeproladder.ui.myaccount
+package com.example.poeproladder.ui.characterselection
 
 import com.example.poeproladder.BaseContract
 import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.CharacterItemsDb
 import io.reactivex.Observable
 
-interface MyAccountContract {
-    interface MyAccountPresenter: BaseContract.BasePresenter<BaseContract.BaseView> {
+interface CharacterSelectionContract {
+    interface CharacterSelectionPresenter : BaseContract.BasePresenter {
         fun getCharacters(accountName: String)
-        fun getItems() : Observable<CharacterItemsDb>
-        fun loadItemIcons()
+        fun onCharacterPicked(characterName: String)
     }
 
     interface MyAccountView: BaseContract.BaseView {
         fun showProgressBar(show: Boolean)
+        fun navigateToInventory()
+        fun showDefaultScreen()
         fun showCharacterList(characters: List<CharacterDb>)
         fun showCharacterWindow(items:CharacterItemsDb)
+        fun showCurrentAccount(accountName: String)
     }
 }

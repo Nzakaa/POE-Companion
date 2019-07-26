@@ -1,16 +1,18 @@
-package com.example.poeproladder.ui.myaccount
+package com.example.poeproladder.ui.inventory
+
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 
 import com.example.poeproladder.R
-import com.example.poeproladder.database.*
+import com.example.poeproladder.database.CharacterDatabase
+import com.example.poeproladder.database.CharacterItemsDb
+import com.example.poeproladder.database.getDatabase
 import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
 import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractorImpl
 import com.example.poeproladder.interactors.Network.CharacterNetworkInteractor
@@ -20,77 +22,70 @@ import com.example.poeproladder.repository.CharactersRepository
 import com.example.poeproladder.repository.CharactersRepositoryImpl
 import com.example.poeproladder.session.SessionService
 import com.example.poeproladder.session.SessionServiceImpl
-import kotlinx.android.synthetic.main.fragment_my_account.*
+import kotlinx.android.synthetic.main.fragment_inventory.*
 
+// TODO: Rename parameter arguments, choose names that match
+// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
-class MyAccountFragment : Fragment(), MyAccountContract.MyAccountView {
-    //dependecy injection
+/**
+ * A simple [Fragment] subclass.
+ *
+ */
+class InventoryFragment : Fragment(), InventoryContract.InventoryView {
+    //dependency injection
     private lateinit var database: CharacterDatabase
     private lateinit var repository: CharactersRepository
     private lateinit var session: SessionService
     private lateinit var databaseInteractor: CharacterDatabaseInteractor
     private lateinit var networkInteractor: CharacterNetworkInteractor
 
-    lateinit var textView: TextView
-    lateinit var getItemsButton: Button
-    lateinit var getAccountButton: Button
-    lateinit var progressBar: ProgressBar
+    private lateinit var textView: TextView
 
-
-    lateinit var presenter: MyAccountPresenter
-
+    private lateinit var presenter: InventoryPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dependencyInjection()
-        presenter = MyAccountPresenter(this, repository)
+        presenter = InventoryPresenter(this, repository)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_my_account, container, false)
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_inventory, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initViews()
-
-        getAccountButton.setOnClickListener {
-            presenter.getCharacters("nzaka")
-        }
-        getItemsButton.setOnClickListener {
-            presenter.getItems()
-        }
-//        presenter.onBind()
+        presenter.onBind()
+        presenter.getItems()
     }
 
-    override fun showProgressBar(show: Boolean) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun showCharacterList(characters: List<CharacterDb>) {
+    override fun showItems(items: CharacterItemsDb) {
         val builder = StringBuilder()
-        for (item in characters) {
-            builder.append("${item.characterName}\n")
+        for (item in items.characterItems) {
+            if (builder.isNotEmpty()) builder.append(", ")
+            when {
+                item.name == "" -> builder.append("${item.base}")
+                else -> builder.append("${item.name} ${item.base}")
+            }
         }
         textView.text = builder.toString()
     }
 
-    override fun showCharacterWindow(items: CharacterItemsDb) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun showError() {
-        textView.text = "Error"
+    override fun showError(error: String) {
+        AlertDialog.Builder(this.context!!)
+            .setTitle("Error")
+            .setMessage(error)
+            .setPositiveButton("Ok", null)
+            .show()
     }
 
     private fun initViews() {
-        textView = textview_mafrag
-        getItemsButton = button_get_items_mafrag
-        getAccountButton = button_get_account_mafrag
-        progressBar = progressBar_mafrag
+        textView = test_textview
     }
 
     private fun dependencyInjection() {
@@ -107,6 +102,6 @@ class MyAccountFragment : Fragment(), MyAccountContract.MyAccountView {
     companion object {
         @JvmStatic
         fun newInstance() =
-            MyAccountFragment()
+            InventoryFragment()
     }
 }

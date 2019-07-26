@@ -2,40 +2,54 @@ package com.example.poeproladder.session
 
 import android.content.Context
 import android.preference.PreferenceManager
-import com.example.poeproladder.database.CharacterDatabase
-import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
-import com.example.poeproladder.interactors.Network.CharacterNetworkInteractorImpl
-import com.example.poeproladder.network.Network
+import io.reactivex.Observable
+import io.reactivex.subjects.BehaviorSubject
 
 class SessionServiceImpl(
     val context: Context
 ) : SessionService {
 
+    private val characterSubject = BehaviorSubject.create<String>()
+    private val characterObs = characterSubject.filter { v -> v != EMPTY}
+
+
     override fun saveAccount(accountName: String) {
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit()
             .putString(ACCOUNT_KEY, accountName)
-            .apply()    }
+            .apply()
+        characterSubject.onNext(EMPTY)
+    }
 
     override fun saveCharacter(characterName: String) {
         PreferenceManager.getDefaultSharedPreferences(context)
             .edit()
             .putString(CHARACTER_KEY, characterName)
             .apply()
+
+        characterSubject.onNext(characterName)
     }
 
     override fun getCharacter(): String? {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(ACCOUNT_KEY, "vvideHardo")
+        val characterName = PreferenceManager.getDefaultSharedPreferences(context)
+            .getString(CHARACTER_KEY, "default")
+        characterSubject.onNext(characterName)
+        return characterName
     }
 
     override fun getAccount(): String? {
         return PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(CHARACTER_KEY, "Nzaka")    }
+            .getString(ACCOUNT_KEY, "default")
+    }
+
+    override fun getCharacterObservable(): Observable<String> {
+        return characterObs
+    }
 
     companion object {
-        val ACCOUNT_KEY = "Account"
-        val CHARACTER_KEY = "Character"
+        const val ACCOUNT_KEY = "Account"
+        const val CHARACTER_KEY = "Character"
+        const val EMPTY = ""
         private var INSTANCE: SessionServiceImpl? = null
 
         @JvmStatic fun getInstance(context: Context): SessionServiceImpl {

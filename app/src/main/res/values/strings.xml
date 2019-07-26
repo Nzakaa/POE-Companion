@@ -2,7 +2,14 @@
     <string name="app_name">Poe Companion</string>
     <string name="recent_characters">Recent</string>
     <string name="account">Account</string>
+    <string name="account_name">Account Name</string>
     <string name="ladder">Ladder</string>
+    <string name="character">Character</string>
+    <string name="inventory">Inventory</string>
+    <string name="passives">Passives</string>
+    <string name="input_account_name">To start importing characters, enter account name on top</string>
+    <string name="change_account">change account</string>
+    <string name="search">search</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

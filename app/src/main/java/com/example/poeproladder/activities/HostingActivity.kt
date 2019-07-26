@@ -36,6 +36,17 @@ class HostingActivity : AppCompatActivity() {
         viewPager.offscreenPageLimit = 2
         tabLayout.setupWithViewPager(viewPager, true)
     }
+
+    fun navigateToPage(page: Int) {
+        viewPager.currentItem = page
+    }
+
+    companion object {
+
+        const val CHARACTERPAGE = 0
+        const val INVENTORYPAGE = 1
+        const val PASSIVESPAGE = 2
+    }
 }
 
 

@@ -5,17 +5,17 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.example.poeproladder.R
-import com.example.poeproladder.ui.ladder.LadderFragment
-import com.example.poeproladder.ui.myaccount.MyAccountFragment
-import com.example.poeproladder.ui.recent.RecentFragment
+import com.example.poeproladder.ui.ladder.PassiveTreeFragment
+import com.example.poeproladder.ui.characterselection.CharacterSelectionFragment
+import com.example.poeproladder.ui.inventory.InventoryFragment
 
 class PagerAdapter(private val context: Context, fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
     override fun getItem(position: Int): Fragment {
         return when (position) {
-            0 -> RecentFragment.newInstance()
-            1 -> MyAccountFragment.newInstance()
-            2 -> LadderFragment.newInstance()
+            0 -> CharacterSelectionFragment.newInstance()
+            1 -> InventoryFragment.newInstance()
+            2 -> PassiveTreeFragment.newInstance()
             else -> throw IllegalArgumentException("Position: ${position} is out of range")
         }
     }
@@ -26,9 +26,9 @@ class PagerAdapter(private val context: Context, fm: FragmentManager) : Fragment
 
     override fun getPageTitle(position: Int): CharSequence? {
         return when (position) {
-            0 -> context.getString(R.string.recent_characters)
-            1 -> context.getString(R.string.account)
-            2 -> context.getString(R.string.ladder)
+            0 -> context.getString(R.string.character)
+            1 -> context.getString(R.string.inventory)
+            2 -> context.getString(R.string.passives)
             else -> null
         }
     }

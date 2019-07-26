@@ -23,9 +23,7 @@ class CharactersRepositoryImpl(
     val networkInteractor: CharacterNetworkInteractor
 ) : CharactersRepository {
     var disposable: Disposable? = null
-    override fun getItemsByName(): Observable<CharacterItemsDb> {
-        val accountName = session.getAccount()
-        val characterName = session.getCharacter()
+    override fun getItemsByName(accountName: String, characterName: String): Observable<CharacterItemsDb> {
         val databaseObservable =
             databaseInteractor.getItemsByName(characterName!!)
         val networkObservable =
