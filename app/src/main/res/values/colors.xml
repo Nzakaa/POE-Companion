@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorPrimary">#222222</color>
+    <color name="colorPrimaryDark">#131313</color>
+    <color name="colorAccent">#7A7AE6</color>
+    <color name="listDivider">#090505</color>
+    <!-- Rarity colors -->
+    <color name="white">#C8C8C8</color>
+    <color name="whiteBackground">#2F2F2F</color>
+    <color name="rare">#FFFF77</color>
+    <color name="rareBackground">#333318</color>
+    <color name="unique">#AF6025</color>
+    <color name="uniqueBackground">#231307</color>
+    <color name="magic">#8888FF</color>
+    <color name="magicBackground">#1B1B33</color>
+    <color name="corrupted">#D20000</color>
+    <color name="cold">#8888FF</color>
+    <color name="fire">#960000</color>
+    <color name="lightning">#FFD700</color>
+    <color name="itemTextColor">#7F7F7F</color>
+    <color name="itemTextWhiteColor">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="itemCardBackground">#E60A0A0A</color>
+    <color name="craftedMod">#B4B4FF</color>
+
 </resources>

@@ -32,7 +32,7 @@ data class CharacterDb constructor(
     ),
     indices = arrayOf(Index(value = ["character_name"]))
 )
-data class ItemsDb constructor(
+data class ItemDb constructor(
     @PrimaryKey(autoGenerate = true) val id: Long?,
     @ColumnInfo(name = "character_name") val characterName: String,
     val width: Int,
@@ -46,9 +46,11 @@ data class ItemsDb constructor(
     val implicitMods: List<String> = ArrayList(),
     val craftedMods: List<String> = ArrayList(),
     val enchantedMods: List<String> = ArrayList(),
+    val corrupted: Boolean = false,
     val itemRarity: Int = -1,  //frameType 0=white, 1=magic, 2=rare, 3=unique
     val inventoryId: String,
-    val socketedItems: List<SocketedItemJson> = ArrayList()
+    val socketedItems: List<SocketedItemJson> = ArrayList(),
+    val x :Int
 )
 
 class CharacterItemsDb {
@@ -57,7 +59,7 @@ class CharacterItemsDb {
     lateinit var character: CharacterDb
 
     @Relation(parentColumn = "characterName", entityColumn = "character_name")
-    var characterItems: List<ItemsDb> = arrayListOf()
+    var characterItems: List<ItemDb> = arrayListOf()
 
 }
 

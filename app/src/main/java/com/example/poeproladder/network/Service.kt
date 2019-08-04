@@ -16,10 +16,6 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface GGGApi {
-    @GET("/ladders/{id}")
-    fun getLadder(@Path("id") leagueId: String, @Query("limit") limit: Int?): Single<NetworkLadderContainerJson>
-}
 
 interface CharacterWindowApi {
     @GET("/character-window/get-characters")
@@ -37,17 +33,7 @@ private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
     .build()
 
-
-
 object Network {
-    val ladderApi by lazy {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(LADDERAPIURL)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .build()
-        return@lazy retrofit.create(GGGApi::class.java)
-    }
 
     val characterApi by lazy {
         val retrofit = Retrofit.Builder()

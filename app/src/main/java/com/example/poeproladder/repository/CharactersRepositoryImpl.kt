@@ -37,8 +37,8 @@ class CharactersRepositoryImpl(
                         else -> {
                             networkObservable
                                 .subscribeOn(Schedulers.io())
-                                .subscribe{result -> databaseInteractor.saveItems(result, characterName)
-                                }
+                                .subscribe({result -> databaseInteractor.saveItems(result, characterName)
+                                }, { error -> Log.d("error", "${error.localizedMessage}") })
                         }
                     }
                 },
@@ -56,23 +56,9 @@ class CharactersRepositoryImpl(
 
     }
 
-    fun isNetworkInProgress(): Boolean? {
+    private fun isNetworkInProgress(): Boolean? {
         val currentDisposable = disposable
         return currentDisposable != null && !currentDisposable.isDisposed
-    }
-
-    fun handleNonHttpException(throwable: Throwable) {
-        if (throwable is HttpException) {
-
-        } else if (throwable is JsonDataException) {
-
-        } else if (throwable is SocketTimeoutException) {
-
-        } else if (throwable is ConnectException) {
-
-        } else {
-            throw RuntimeException(throwable)
-        }
     }
 
     companion object {

@@ -2,7 +2,6 @@ package com.example.poeproladder.database
 
 import android.content.Context
 import androidx.room.*
-import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
 
@@ -35,13 +34,13 @@ interface ItemsDao {
     fun getAllItems(): Maybe<List<CharacterItemsDb>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun saveItems(items: List<ItemsDb>)
+    fun saveItems(items: List<ItemDb>)
 
-    @Query("delete from ItemsDb")
+    @Query("delete from ItemDb")
     fun deleteAllItems()
 }
 
-@Database(entities = [CharacterDb::class, ItemsDb::class], version = 1, exportSchema = false)
+@Database(entities = [CharacterDb::class, ItemDb::class], version = 1, exportSchema = false)
 @TypeConverters(
     SocketsTypeConverter::class,
     PropertiesTypeConverter::class,
