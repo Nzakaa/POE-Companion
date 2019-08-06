@@ -10,10 +10,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.bumptech.glide.Glide
-import com.example.poeproladder.BaseApp
 
 import com.example.poeproladder.R
-import com.example.poeproladder.activities.HostingActivity
 import com.example.poeproladder.database.CharacterDatabase
 import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.ItemDb
@@ -25,12 +23,8 @@ import com.example.poeproladder.interactors.Network.CharacterNetworkInteractorIm
 import com.example.poeproladder.network.Network
 import com.example.poeproladder.repository.CharactersRepository
 import com.example.poeproladder.repository.CharactersRepositoryImpl
-import com.example.poeproladder.session.SessionService
-import com.example.poeproladder.session.SessionServiceImpl
 import kotlinx.android.synthetic.main.fragment_inventory.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
 /**
  * A simple [Fragment] subclass.
@@ -79,7 +73,6 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_inventory, container, false)
     }
 
@@ -87,7 +80,6 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
         super.onViewCreated(view, savedInstanceState)
         initViews()
         presenter.onBind()
-//        presenter.getItems()
 
     }
 

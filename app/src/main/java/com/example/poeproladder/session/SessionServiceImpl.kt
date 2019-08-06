@@ -49,7 +49,7 @@ class SessionServiceImpl(
             .getString(ACCOUNT_KEY, "default")
 
         if (accountName != "default") account = accountName
-//        updateObservable()
+        updateObservable()
         return accountName
     }
 
@@ -58,9 +58,8 @@ class SessionServiceImpl(
     }
 
     private fun updateObservable() {
-        var characterRequestInfo: CharacterRequest
         if (account != "" && character != "") {
-            characterRequestInfo = CharacterRequest(account, character)
+            val characterRequestInfo = CharacterRequest(account, character)
             characterSubject.onNext(characterRequestInfo)
         }
     }

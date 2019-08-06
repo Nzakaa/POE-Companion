@@ -56,18 +56,6 @@ class ItemInfoDialog : DialogFragment() {
         return builder.create()
     }
 
-//    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-//        return inflater.inflate(R.layout.dialog_item_info, null)
-//    }
-
-
-//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-//        super.onViewCreated(view, savedInstanceState)
-//        initViews()
-//        showItemInfo()
-//        itemCard.setOnClickListener { dismiss() }
-//    }
-
     private fun initViews(view: View) {
         itemNameTextView = view.findViewById(R.id.textView_item_name)
         itemNameFrame = view.findViewById(R.id.frame_item_name)
@@ -86,13 +74,6 @@ class ItemInfoDialog : DialogFragment() {
         if (itemInfo.enchantedMods.isNotEmpty()) prepareLabEnchants() else itemLabEnchantTextView.visibility = View.GONE
         if (itemInfo.craftedMods.isNotEmpty() || itemInfo.explicitMods.isNotEmpty()) prepareExplicit() else itemPropertiesTextView.visibility =
             View.GONE
-
-
-//        itemBaseTextView.text = itemInfo.base
-//        itemImplicitTextView.text = itemInfo.implicit
-//        itemLabEnchantTextView.text = itemInfo.labEnchant
-//        itemPropertiesTextView.text = itemInfo.properties
-//        if (!itemInfo.corrupted) itemCorruptedTextView.visibility = View.GONE
     }
 
     private fun prepareTitle() {

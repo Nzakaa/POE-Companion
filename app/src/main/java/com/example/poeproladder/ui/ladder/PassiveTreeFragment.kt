@@ -42,17 +42,6 @@ class PassiveTreeFragment : Fragment() {
                 return true
             }
         }
-//        webView.apply {
-//            getSettings().setJavaScriptEnabled(true)
-//            getSettings().setLoadsImagesAutomatically(true)
-//            loadUrl(url)
-//        }
-
-//        wv.setWebViewClient(new myWebViewClient());
-//        wv.getSettings().setJavaScriptEnabled(true);
-//        wv.getSettings().setLoadsImagesAutomatically(true);
-//        wv.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-//        wv.loadUrl(url);
     }
 
     companion object {

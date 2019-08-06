@@ -9,6 +9,5 @@ interface SessionService {
     fun saveAccount(accountName: String)
     fun getCharacter(): String?
     fun getAccount(): String?
-
     fun getCharacterObservable(): Observable<CharacterRequest>
 }
