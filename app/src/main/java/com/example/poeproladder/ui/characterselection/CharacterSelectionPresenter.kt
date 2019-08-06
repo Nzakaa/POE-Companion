@@ -5,6 +5,7 @@ import com.example.poeproladder.BaseContract
 import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.CharacterItemsDb
 import com.example.poeproladder.repository.CharactersRepository
+import com.example.poeproladder.repository.CharactersRepositoryImpl
 import com.example.poeproladder.session.SessionServiceImpl
 import com.example.poeproladder.ui.BaseFragmentPresenter
 import io.reactivex.Observable
@@ -16,7 +17,7 @@ class CharacterSelectionPresenter(
     private val repository: CharactersRepository
 ) : BaseFragmentPresenter<CharacterSelectionContract.MyAccountView>(view), CharacterSelectionContract.CharacterSelectionPresenter {
 
-    private val session = SessionServiceImpl(BaseApp.applicationContext())
+    private val session = BaseApp.session!!
 
     override fun getCharacters(accountName: String) {
         getCharactersFromRepo(accountName)

@@ -15,8 +15,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 
 class CharacterDatabaseInteractorImpl(
-    val database: CharacterDatabase,
-    val session: SessionService
+    val database: CharacterDatabase
 ) : CharacterDatabaseInteractor {
     val observable = BehaviorSubject.create<CharacterItemsDb>()
 
@@ -35,14 +34,11 @@ class CharacterDatabaseInteractorImpl(
         observable.onNext(items)
     }
 
-    override fun saveCharacter(character: CharacterDb) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
     override fun saveItems(items: CharacterWindowItemsJson, characterName: String) {
         val itemsDb = items.asDatabaseModel(characterName)
         database.itemsDao.saveItems(itemsDb)
-        val disp = getItemsByName(characterName)
+        getItemsByName(characterName)
             .subscribeOn(Schedulers.io())
             .subscribe { result ->  observable.onNext(result)}
     }
@@ -57,19 +53,15 @@ class CharacterDatabaseInteractorImpl(
             .subscribeOn(Schedulers.io())
     }
 
-    override fun getRecentCharacters(): Maybe<List<CharacterDb>> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
 
     companion object {
         private var INSTANCE: CharacterDatabaseInteractorImpl? = null
 
         @JvmStatic fun getInstance(
-            database: CharacterDatabase,
-            session: SessionService
+            database: CharacterDatabase
         ): CharacterDatabaseInteractorImpl {
-            return INSTANCE ?: CharacterDatabaseInteractorImpl(database, session)
+            return INSTANCE ?: CharacterDatabaseInteractorImpl(database)
                 .apply { INSTANCE = this }
         }
     }

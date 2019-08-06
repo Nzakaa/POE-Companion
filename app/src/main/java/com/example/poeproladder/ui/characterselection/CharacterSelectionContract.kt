@@ -16,7 +16,6 @@ interface CharacterSelectionContract {
         fun navigateToInventory()
         fun showDefaultScreen()
         fun showCharacterList(characters: List<CharacterDb>)
-        fun showCharacterWindow(items:CharacterItemsDb)
         fun showCurrentAccount(accountName: String)
     }
 }

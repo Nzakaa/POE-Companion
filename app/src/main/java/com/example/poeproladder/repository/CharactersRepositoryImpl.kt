@@ -6,13 +6,11 @@ import com.example.poeproladder.database.CharacterItemsDb
 import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
 import com.example.poeproladder.interactors.Network.CharacterNetworkInteractor
 import com.example.poeproladder.network.CharacterWindowCharacterJson
-import com.example.poeproladder.session.SessionService
 import io.reactivex.*
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 class CharactersRepositoryImpl(
-    val session: SessionService,
     val databaseInteractor: CharacterDatabaseInteractor,
     val networkInteractor: CharacterNetworkInteractor
 ) : CharactersRepository {
@@ -60,11 +58,10 @@ class CharactersRepositoryImpl(
 
         @JvmStatic
         fun getInstance(
-            session: SessionService,
             databaseInteractor: CharacterDatabaseInteractor,
             networkInteractor: CharacterNetworkInteractor
         ): CharactersRepositoryImpl {
-            return INSTANCE ?: CharactersRepositoryImpl(session, databaseInteractor, networkInteractor)
+            return INSTANCE ?: CharactersRepositoryImpl(databaseInteractor, networkInteractor)
                 .apply { INSTANCE = this }
         }
     }

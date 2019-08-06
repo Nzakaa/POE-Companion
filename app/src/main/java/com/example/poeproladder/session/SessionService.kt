@@ -1,5 +1,6 @@
 package com.example.poeproladder.session
 
+import com.example.poeproladder.domain.CharacterRequest
 import io.reactivex.Observable
 
 
@@ -9,5 +10,5 @@ interface SessionService {
     fun getCharacter(): String?
     fun getAccount(): String?
 
-    fun getCharacterObservable(): Observable<String>
+    fun getCharacterObservable(): Observable<CharacterRequest>
 }

@@ -11,9 +11,7 @@ import io.reactivex.Single
 
 interface CharacterDatabaseInteractor {
     fun saveCharacters(characters: List<CharacterWindowCharacterJson>, accountName: String)
-    fun saveCharacter(character: CharacterDb)
     fun getAccountCharacters(accountName: String): Single<List<CharacterDb>>
-    fun getRecentCharacters(): Maybe<List<CharacterDb>>
     fun saveItems(items: CharacterWindowItemsJson, characterName: String)
     fun getItemsByName(characterName: String): Single<CharacterItemsDb>
     fun getCharacterItemsObservable(): Observable<CharacterItemsDb>

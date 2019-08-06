@@ -29,7 +29,7 @@ import com.example.poeproladder.network.Network
 import com.example.poeproladder.repository.CharactersRepository
 import com.example.poeproladder.repository.CharactersRepositoryImpl
 import com.example.poeproladder.session.SessionService
-import com.example.poeproladder.session.SessionServiceImpl
+import com.example.poeproladder.util.hideKeyboard
 import kotlinx.android.synthetic.main.fragment_character_selection.*
 
 
@@ -37,7 +37,6 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
     //dependency injection
     private lateinit var database: CharacterDatabase
     private lateinit var repository: CharactersRepository
-    private lateinit var session: SessionService
     private lateinit var databaseInteractor: CharacterDatabaseInteractor
     private lateinit var networkInteractor: CharacterNetworkInteractor
 
@@ -72,7 +71,7 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
 
         presenter.onBind()
 
-        accountNameEditText.addTextChangedListener(object: TextWatcher{
+        accountNameEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
             }
 
@@ -89,6 +88,7 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
                 val requestedAccountName = accountNameEditText.text.toString()
                 accountNameEditText.text = null
                 accountNameEditText.onEditorAction(EditorInfo.IME_ACTION_DONE)
+                accountNameEditText.clearFocus()
                 defaultMessageTextView.visibility = View.GONE
                 presenter.getCharacters(requestedAccountName)
             } else {
@@ -116,7 +116,7 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
     }
 
     override fun showCharacterList(characters: List<CharacterDb>) {
-        val adapter = CharacterListAdapter(characters, {character: CharacterDb -> characterClicked(character)})
+        val adapter = CharacterListAdapter(characters, { character: CharacterDb -> characterClicked(character) })
         defaultMessageTextView.visibility = View.GONE
         recyclerView.visibility = View.VISIBLE
         recyclerView.adapter = adapter
@@ -127,9 +127,6 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
         progressBar.visibility = View.GONE
     }
 
-    override fun showCharacterWindow(items: CharacterItemsDb) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
 
     override fun showError(error: String) {
         AlertDialog.Builder(this.context!!)
@@ -143,20 +140,25 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
         hostingActivity.navigateToPage(HostingActivity.INVENTORYPAGE)
     }
 
+
     private fun characterClicked(character: CharacterDb) {
         presenter.onCharacterPicked(character.characterName)
     }
 
     private fun initViews() {
         accountNameTextView = textView_account_name
-        accountNameEditText = editText_account
+        accountNameEditText = editText_account.apply {
+            isFocusableInTouchMode = true
+        }
         defaultMessageTextView = textView_default_message
         searchButton = button_get_account
         progressBar = progressBar_account
 
-        recyclerView = recyclerView_character_list
-        recyclerView.layoutManager = LinearLayoutManager(this.context)
-        recyclerView.addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
+        recyclerView = recyclerView_character_list.apply {
+            layoutManager = LinearLayoutManager(this.context)
+            addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
+        }
+
     }
 
     override fun showCurrentAccount(accountName: String) {
@@ -165,13 +167,12 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
 
     private fun dependencyInjection() {
         database = getDatabase(activity!!.application)
-        session = SessionServiceImpl(BaseApp.applicationContext())
         databaseInteractor = CharacterDatabaseInteractorImpl
-            .getInstance(database, session)
+            .getInstance(database)
         networkInteractor = CharacterNetworkInteractorImpl
             .getInstance(database, Network, databaseInteractor)
         repository = CharactersRepositoryImpl
-            .getInstance(session, databaseInteractor, networkInteractor)
+            .getInstance(databaseInteractor, networkInteractor)
     }
 
     companion object {

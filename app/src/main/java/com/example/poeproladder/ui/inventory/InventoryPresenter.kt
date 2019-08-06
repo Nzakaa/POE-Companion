@@ -14,32 +14,29 @@ class InventoryPresenter(
     private val repository: CharactersRepository
 ) : BaseFragmentPresenter<InventoryContract.InventoryView>(view), InventoryContract.InventoryPresenter {
 
-    private val session = SessionServiceImpl(BaseApp.applicationContext())
+    private val session = BaseApp.session
+    private val itemsObservable = session!!.getCharacterObservable()
 
     override fun detachView() {
         view = null
     }
 
     override fun onBind() {
-        val character = session.getCharacter()
-        val account = session.getAccount()
-        if (character != "default" && account != "default") getItemsFromRepo(account!!, character!!)
+
+        compositeDisposable.add(
+            itemsObservable
+                .subscribe({ character ->
+                    if (character.characterName != "default" && character.accountName != "default")
+                        getItemsFromRepo(character.accountName, character.characterName)
+                }, { error ->
+                    view?.showError(error.localizedMessage)
+                }))
     }
 
     override fun openItemInfo(item: ItemDb) {
         view?.let { it.showItem(item) }
     }
 
-    override fun getItems() {
-        val account = session.getAccount()
-        compositeDisposable.add(
-            session.getCharacterObservable()
-                .subscribe({ character ->
-                    if (character != "default" && account != "default") getItemsFromRepo(account!!, character)
-                }, { error ->
-                    view?.showError(error.localizedMessage)
-                }))
-    }
 
     private fun getItemsFromRepo(accountName: String, characterName: String) {
         compositeDisposable.add(repository.getItemsByName(accountName, characterName)

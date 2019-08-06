@@ -84,7 +84,8 @@ class ItemInfoDialog : DialogFragment() {
         if (itemInfo.properties.isNotEmpty()) prepareBaseModes() else itemBaseTextView.visibility = View.GONE
         if (itemInfo.implicitMods.isNotEmpty()) prepareImplicit() else itemImplicitTextView.visibility = View.GONE
         if (itemInfo.enchantedMods.isNotEmpty()) prepareLabEnchants() else itemLabEnchantTextView.visibility = View.GONE
-        if (itemInfo.craftedMods.isNotEmpty() || itemInfo.explicitMods.isNotEmpty()) prepareExplicit() else itemPropertiesTextView.visibility = View.GONE
+        if (itemInfo.craftedMods.isNotEmpty() || itemInfo.explicitMods.isNotEmpty()) prepareExplicit() else itemPropertiesTextView.visibility =
+            View.GONE
 
 
 //        itemBaseTextView.text = itemInfo.base
@@ -115,7 +116,10 @@ class ItemInfoDialog : DialogFragment() {
                 color = ContextCompat.getColor(BaseApp.applicationContext(), R.color.unique)
                 itemNameTextView.setBackgroundResource(R.color.uniqueBackground)
             }
-            else -> throw IllegalArgumentException("Item rarity: ${itemInfo.itemRarity} out of range")
+            else -> {
+                color = ContextCompat.getColor(BaseApp.applicationContext(), R.color.unique)
+                itemNameTextView.setBackgroundResource(R.color.uniqueBackground)
+            }
         }
         var title = if (itemInfo.name != "") "${itemInfo.name}\n${itemInfo.base}" else "${itemInfo.base}"
 
@@ -180,9 +184,9 @@ class ItemInfoDialog : DialogFragment() {
                                 value = values[0].toString()
                                 val divider = "%$index"
                                 val start = indexOf(flaskText, divider)
-                                flaskText.replace(start, start+2, value)
+                                flaskText.replace(start, start + 2, value)
                                 flaskText.setSpan(ForegroundColorSpan(color), start, start + value.length, 0)
-                                if (index != property.values.size-1)  flaskText
+                                if (index != property.values.size - 1) flaskText
                             }
                             builder.append(flaskText).append("\n")
                         }

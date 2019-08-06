@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.example.poeproladder.BaseApp
 
 import com.example.poeproladder.R
+import com.example.poeproladder.activities.HostingActivity
 import com.example.poeproladder.database.CharacterDatabase
 import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.ItemDb
@@ -39,11 +40,9 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
     //dependency injection
     private lateinit var database: CharacterDatabase
     private lateinit var repository: CharactersRepository
-    private lateinit var session: SessionService
     private lateinit var databaseInteractor: CharacterDatabaseInteractor
     private lateinit var networkInteractor: CharacterNetworkInteractor
 
-    private lateinit var textView: TextView
     private lateinit var characterNameTextView: TextView
     private lateinit var characterLevelAndClassTextView: TextView
 
@@ -57,6 +56,7 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
     private lateinit var boots: ImageView
     private lateinit var gloves: ImageView
     private lateinit var ring: ImageView
+
     private lateinit var ring2: ImageView
     private lateinit var amulet: ImageView
     private lateinit var belt: ImageView
@@ -87,7 +87,8 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
         super.onViewCreated(view, savedInstanceState)
         initViews()
         presenter.onBind()
-        presenter.getItems()
+//        presenter.getItems()
+
     }
 
     override fun onDestroy() {
@@ -98,16 +99,14 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
 
     override fun showItems(item: HashMap<String, ItemDb>) {
         saveItemsInfo(item)
-//        val url = "https://web.poecdn.com/image/Art/2DItems/Armours/Helmets/HelmetStr11.png?scale=1&w=2&h=2&v=342bd7655177cacda3928e191d7eb83c"
-//        Glide.with(this).load(url).into(helmet)
-        for (item in itemViews) {
-            val key = item.key
-            val image = item.value
+        for (itemView in itemViews) {
+            val key = itemView.key
+            val image = itemView.value
             image.setOnClickListener {
-                view?.let { onItemClicked(itemInfo?.get(key)) }
+                view?.let { onItemClicked(itemInfo.get(key)) }
             }
-            val url = itemInfo?.get(key)?.icon
-            Glide.with(this).load(url).into(item.value)
+            val url = itemInfo.get(key)?.icon
+            Glide.with(this).load(url).into(itemView.value)
         }
     }
 
@@ -129,9 +128,8 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
             .show()
     }
 
-    private fun initViews() {
-        textView = test_textview
 
+    private fun initViews() {
         characterNameTextView = textView_character_name
         characterLevelAndClassTextView = textView_level_class
 
@@ -162,13 +160,12 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
 
     private fun dependencyInjection() {
         database = getDatabase(activity!!.application)
-        session = SessionServiceImpl(BaseApp.applicationContext())
         databaseInteractor = CharacterDatabaseInteractorImpl
-            .getInstance(database, session)
+            .getInstance(database)
         networkInteractor = CharacterNetworkInteractorImpl
             .getInstance(database, Network, databaseInteractor)
         repository = CharactersRepositoryImpl
-            .getInstance(session, databaseInteractor, networkInteractor)
+            .getInstance(databaseInteractor, networkInteractor)
     }
 
     companion object {

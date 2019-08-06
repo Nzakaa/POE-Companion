@@ -12,7 +12,6 @@ interface InventoryContract {
     }
 
     interface InventoryPresenter : BaseContract.BasePresenter {
-        fun getItems()
         fun openItemInfo(item: ItemDb)
     }
 }
