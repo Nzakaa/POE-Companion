@@ -16,7 +16,7 @@ class CharacterSelectionPresenter(
     private val repository: CharactersRepository
 ) : BaseFragmentPresenter<CharacterSelectionContract.MyAccountView>(view), CharacterSelectionContract.CharacterSelectionPresenter {
 
-    private val session = SessionServiceImpl.getInstance(BaseApp.applicationContext())
+    private val session = SessionServiceImpl(BaseApp.applicationContext())
 
     override fun getCharacters(accountName: String) {
         getCharactersFromRepo(accountName)

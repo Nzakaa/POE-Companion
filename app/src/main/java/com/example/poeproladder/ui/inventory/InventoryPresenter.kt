@@ -14,7 +14,7 @@ class InventoryPresenter(
     private val repository: CharactersRepository
 ) : BaseFragmentPresenter<InventoryContract.InventoryView>(view), InventoryContract.InventoryPresenter {
 
-    private val session = SessionServiceImpl.getInstance(BaseApp.applicationContext())
+    private val session = SessionServiceImpl(BaseApp.applicationContext())
 
     override fun detachView() {
         view = null
@@ -23,7 +23,7 @@ class InventoryPresenter(
     override fun onBind() {
         val character = session.getCharacter()
         val account = session.getAccount()
-        if (character != null && account != null) getItemsFromRepo(account, character)
+        if (character != "default" && account != "default") getItemsFromRepo(account!!, character!!)
     }
 
     override fun openItemInfo(item: ItemDb) {
@@ -35,7 +35,7 @@ class InventoryPresenter(
         compositeDisposable.add(
             session.getCharacterObservable()
                 .subscribe({ character ->
-                    if (account != null) getItemsFromRepo(account, character)
+                    if (character != "default" && account != "default") getItemsFromRepo(account!!, character)
                 }, { error ->
                     view?.showError(error.localizedMessage)
                 }))

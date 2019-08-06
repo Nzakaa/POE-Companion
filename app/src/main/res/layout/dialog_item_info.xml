@@ -13,7 +13,7 @@
             android:background="@drawable/black_outline">
 
         <FrameLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/frame_item_name"
                 android:padding="2dp"
@@ -33,60 +33,64 @@
                     app:layout_constraintTop_toTopOf="parent"
                     android:textAlignment="center"/>
         </FrameLayout>
-        <TextView
-                android:text="TextView"
-                android:layout_width="0dp"
-                android:textAppearance="@style/itemInfoBaseText"
-                android:padding="@dimen/item_info_padding"
-                android:layout_height="wrap_content" android:id="@+id/textView_base_properties"
-                app:layout_constraintTop_toBottomOf="@+id/frame_item_name" app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp" android:textAlignment="center"
-                app:layout_constraintHorizontal_bias="0.15"/>
-        <TextView
-                android:text="TextView"
-                android:layout_width="0dp"
-                android:textAppearance="@style/itemInfoBaseText"
-                android:padding="@dimen/item_info_padding"
-                android:layout_height="wrap_content" android:id="@+id/textView_implicit"
+
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/linearlayout_item_info"
+                app:layout_constraintTop_toBottomOf="@+id/frame_item_name"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp" android:textAlignment="center"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintTop_toBottomOf="@+id/textView_base_properties"/>
-        <TextView
-                android:text="TextView"
-                android:layout_width="0dp"
-                android:textAppearance="@style/itemInfoBaseText"
-                android:padding="@dimen/item_info_padding"
-                android:layout_height="wrap_content" android:id="@+id/textView_lab_enchant"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp" android:textAlignment="center"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintTop_toBottomOf="@+id/textView_implicit"/>
-        <TextView
-                android:text="TextView"
-                android:layout_width="0dp"
-                android:textAppearance="@style/itemInfoBaseText"
-                android:padding="@dimen/item_info_padding"
-                android:layout_height="wrap_content" android:id="@+id/textView_properties"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp" android:textAlignment="center"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintTop_toBottomOf="@+id/textView_lab_enchant"/>
-        <TextView
-                android:text="@string/corrupted"
-                android:layout_width="0dp"
-                android:textAppearance="@style/itemInfoBaseText"
-                android:textColor="@color/corrupted"
-                android:padding="@dimen/item_info_padding"
-                android:layout_height="wrap_content" android:id="@+id/textView_corrupted"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="8dp" android:textAlignment="center"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintTop_toBottomOf="@+id/textView_properties"/>
+                android:showDividers="middle"
+                android:paddingBottom="4dp"
+                android:divider="@drawable/gradient_divider"
+        >
+            <TextView
+                    android:text="textView_base_properties"
+                    android:layout_width="match_parent"
+                    android:textAppearance="@style/itemInfoBaseText"
+                    android:padding="@dimen/item_info_padding"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textView_base_properties"
+                    android:textAlignment="center"
+            />
+            <!--<View android:layout_height="2dp"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:background="@drawable/gradient_divider"-->
+            <!--android:layout_marginBottom="5dp"-->
+            <!--android:layout_marginTop="5dp"-->
+            <!--android:id="@+id/separator2"-->
+            <!--/>-->
+            <TextView
+                    android:text="textView_implicit"
+                    android:layout_width="match_parent"
+                    android:textAppearance="@style/itemInfoBaseText"
+                    android:padding="@dimen/item_info_padding"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textView_implicit"
+                    android:textAlignment="center"
+            />
+            <TextView
+                    android:text="textView_lab_enchant"
+                    android:layout_width="match_parent"
+                    android:textAppearance="@style/itemInfoBaseText"
+                    android:padding="@dimen/item_info_padding"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textView_lab_enchant"
+                    android:textAlignment="center"
+            />
+            <TextView
+                    android:text="textView_properties"
+                    android:layout_width="match_parent"
+                    android:textAppearance="@style/itemInfoBaseText"
+                    android:padding="@dimen/item_info_padding"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textView_properties"
+                    android:textAlignment="center"
+            />
+        </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

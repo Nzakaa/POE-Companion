@@ -42,7 +42,7 @@ class CharacterDatabaseInteractorImpl(
     override fun saveItems(items: CharacterWindowItemsJson, characterName: String) {
         val itemsDb = items.asDatabaseModel(characterName)
         database.itemsDao.saveItems(itemsDb)
-        getItemsByName(characterName)
+        val disp = getItemsByName(characterName)
             .subscribeOn(Schedulers.io())
             .subscribe { result ->  observable.onNext(result)}
     }

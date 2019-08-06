@@ -82,7 +82,8 @@ class ItemPoeJson(
     val properties: List<ItemPropertiesJson> = ArrayList(),
     val implicitMods: List<String> = ArrayList(),
     val craftedMods: List<String> = ArrayList(),
-    val enchantedMods: List<String> = ArrayList(),
+    val enchantMods: List<String> = ArrayList(),
+    val explicitMods: List<String> = ArrayList(),
     val corrupted: Boolean = false,
     @Json(name = "frameType") val itemRarity: Int = -1,  //frameType 0=white, 1=magic, 2=rare, 3=unique
     val inventoryId: String,
@@ -150,12 +151,13 @@ fun CharacterWindowItemsJson.asDatabaseModel(characterName: String): List<ItemDb
             properties = it.properties,
             implicitMods = it.implicitMods,
             craftedMods = it.craftedMods,
-            enchantedMods = it.enchantedMods,
+            enchantedMods = it.enchantMods,
             itemRarity = it.itemRarity,
             inventoryId = it.inventoryId,
             socketedItems = it.socketedItems,
             x = it.x,
-            corrupted = it.corrupted
+            corrupted = it.corrupted,
+            explicitMods = it.explicitMods
         )
     }
 }

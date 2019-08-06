@@ -33,7 +33,7 @@ class SessionServiceImpl(
     override fun getCharacter(): String? {
         val characterName = PreferenceManager.getDefaultSharedPreferences(context)
             .getString(CHARACTER_KEY, "default")
-        characterSubject.onNext(characterName)
+        if (characterName != "default") characterSubject.onNext(characterName)
         return characterName
     }
 
@@ -50,11 +50,11 @@ class SessionServiceImpl(
         const val ACCOUNT_KEY = "Account"
         const val CHARACTER_KEY = "Character"
         const val EMPTY = ""
-        private var INSTANCE: SessionServiceImpl? = null
-
-        @JvmStatic fun getInstance(context: Context): SessionServiceImpl {
-            return INSTANCE ?: SessionServiceImpl(context)
-                .apply { INSTANCE = this }
-        }
+//        private var INSTANCE: SessionServiceImpl? = null
+//
+//        @JvmStatic fun getInstance(context: Context): SessionServiceImpl {
+//            return INSTANCE ?: SessionServiceImpl(context)
+//                .apply { INSTANCE = this }
+//        }
     }
 }

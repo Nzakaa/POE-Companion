@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.bumptech.glide.Glide
+import com.example.poeproladder.BaseApp
 
 import com.example.poeproladder.R
 import com.example.poeproladder.database.CharacterDatabase
@@ -89,13 +90,9 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
         presenter.getItems()
     }
 
-    override fun onStop() {
-        super.onStop()
-        presenter.onStop()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
+        presenter.onStop()
         presenter.detachView()
     }
 
@@ -165,7 +162,7 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
 
     private fun dependencyInjection() {
         database = getDatabase(activity!!.application)
-        session = SessionServiceImpl.getInstance(activity!!.application)
+        session = SessionServiceImpl(BaseApp.applicationContext())
         databaseInteractor = CharacterDatabaseInteractorImpl
             .getInstance(database, session)
         networkInteractor = CharacterNetworkInteractorImpl

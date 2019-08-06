@@ -48,7 +48,6 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
     private lateinit var progressBar: ProgressBar
     private lateinit var searchButton: Button
 
-
     private lateinit var hostingActivity: HostingActivity
 
     private lateinit var presenter: CharacterSelectionPresenter
@@ -103,13 +102,9 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
         hostingActivity = activity as HostingActivity
     }
 
-    override fun onStop() {
-        super.onStop()
-        presenter.onStop()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
+        presenter.onStop()
         presenter.detachView()
     }
 
@@ -165,14 +160,12 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
     }
 
     override fun showCurrentAccount(accountName: String) {
-//        defaultMessageTextView.visibility = View.GONE
-//        recyclerView.visibility = View.VISIBLE
         accountNameTextView.text = "${accountName.toUpperCase()}"
     }
 
     private fun dependencyInjection() {
         database = getDatabase(activity!!.application)
-        session = SessionServiceImpl.getInstance(activity!!.application)
+        session = SessionServiceImpl(BaseApp.applicationContext())
         databaseInteractor = CharacterDatabaseInteractorImpl
             .getInstance(database, session)
         networkInteractor = CharacterNetworkInteractorImpl

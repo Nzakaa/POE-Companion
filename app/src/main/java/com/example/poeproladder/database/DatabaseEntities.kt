@@ -50,7 +50,8 @@ data class ItemDb constructor(
     val itemRarity: Int = -1,  //frameType 0=white, 1=magic, 2=rare, 3=unique
     val inventoryId: String,
     val socketedItems: List<SocketedItemJson> = ArrayList(),
-    val x :Int
+    val x :Int,
+    val explicitMods: List<String> = ArrayList()
 )
 
 class CharacterItemsDb {

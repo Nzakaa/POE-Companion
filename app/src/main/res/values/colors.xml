@@ -21,6 +21,6 @@
     <color name="itemTextWhiteColor">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="itemCardBackground">#E60A0A0A</color>
-    <color name="craftedMod">#B4B4FF</color>
+    <color name="craftedOrEnchantedMod">#B4B4FF</color>
 
 </resources>

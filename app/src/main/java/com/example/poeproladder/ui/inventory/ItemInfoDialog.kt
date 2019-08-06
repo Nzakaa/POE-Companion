@@ -5,7 +5,6 @@ import android.graphics.PorterDuff
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
-import android.text.Spanned
 import android.text.TextUtils.indexOf
 import android.text.style.ForegroundColorSpan
 import android.view.View
@@ -20,7 +19,6 @@ import com.example.poeproladder.R
 import com.example.poeproladder.database.ItemDb
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import java.util.regex.Pattern
 
 class ItemInfoDialog : DialogFragment() {
 
@@ -30,9 +28,8 @@ class ItemInfoDialog : DialogFragment() {
     lateinit var itemNameFrame: FrameLayout
     lateinit var itemBaseTextView: TextView
     lateinit var itemImplicitTextView: TextView
-    lateinit var itemLavEnchantTextView: TextView
+    lateinit var itemLabEnchantTextView: TextView
     lateinit var itemPropertiesTextView: TextView
-    lateinit var itemCorruptedTextView: TextView
 
     lateinit var itemCard: CardView
 
@@ -76,19 +73,23 @@ class ItemInfoDialog : DialogFragment() {
         itemNameFrame = view.findViewById(R.id.frame_item_name)
         itemBaseTextView = view.findViewById(R.id.textView_base_properties)
         itemImplicitTextView = view.findViewById(R.id.textView_implicit)
-        itemLavEnchantTextView = view.findViewById(R.id.textView_lab_enchant)
+        itemLabEnchantTextView = view.findViewById(R.id.textView_lab_enchant)
         itemPropertiesTextView = view.findViewById(R.id.textView_properties)
-        itemCorruptedTextView = view.findViewById(R.id.textView_corrupted)
         itemCard = view.findViewById(R.id.cardView_item)
     }
 
     private fun showItemInfo() {
+        // When flor where for empty field i checking with if and make some rows View.Gone
         prepareTitle()
-        prepareBaseModes()
+        if (itemInfo.properties.isNotEmpty()) prepareBaseModes() else itemBaseTextView.visibility = View.GONE
+        if (itemInfo.implicitMods.isNotEmpty()) prepareImplicit() else itemImplicitTextView.visibility = View.GONE
+        if (itemInfo.enchantedMods.isNotEmpty()) prepareLabEnchants() else itemLabEnchantTextView.visibility = View.GONE
+        if (itemInfo.craftedMods.isNotEmpty() || itemInfo.explicitMods.isNotEmpty()) prepareExplicit() else itemPropertiesTextView.visibility = View.GONE
+
 
 //        itemBaseTextView.text = itemInfo.base
 //        itemImplicitTextView.text = itemInfo.implicit
-//        itemLavEnchantTextView.text = itemInfo.labEnchant
+//        itemLabEnchantTextView.text = itemInfo.labEnchant
 //        itemPropertiesTextView.text = itemInfo.properties
 //        if (!itemInfo.corrupted) itemCorruptedTextView.visibility = View.GONE
     }
@@ -133,59 +134,109 @@ class ItemInfoDialog : DialogFragment() {
 
     private fun prepareBaseModes() {
         val builder = SpannableStringBuilder()
-        var color: Int = -1
-        var value: String = ""
+        var color: Int
+        var value: String
         for (property in itemInfo.properties) {
+
+            //Make generic base weapon name a different row
             if (property.values.isEmpty())
                 builder.append(property.name).append("\n")
             else {
                 when {
+                    //Make Name: Value row for values.size == 1 nestes value
                     property.values.size == 1 && itemInfo.inventoryId != "Flask" -> {
                         builder.append(property.name).append(": ")
                         color = valueColor((property.values[0][1] as Double).toInt())
                         value = property.values[0][0].toString()
-                        var span = SpannableString(value)
+                        val span = SpannableString(value)
                         span.setSpan(ForegroundColorSpan(color), 0, span.length, 0)
                         builder.append(span).append("\n")
                     }
-
+                    //Make rest item base values for values that have values.size >= 2
                     property.values.size >= 2 && itemInfo.inventoryId != "Flask" -> {
                         builder.append(property.name).append(": ")
                         for ((index, values) in property.values.withIndex()) {
                             color = valueColor((values[1] as Double).toInt())
                             value = values[0].toString()
-                            var span = SpannableString(value)
+                            val span = SpannableString(value)
                             span.setSpan(ForegroundColorSpan(color), 0, span.length, 0)
                             builder.append(span)
                             if (index != property.values.size - 1) builder.append(", ") else builder.append("\n")
                         }
                     }
-
+                    //Make Flasks base values
                     itemInfo.inventoryId == "Flask" -> {
                         if (property.name == "Quality") {
                             builder.append(property.name).append(": ")
                             color = valueColor((property.values[0][1] as Double).toInt())
                             value = property.values[0][0].toString()
-                            var span = SpannableString(value)
+                            val span = SpannableString(value)
                             span.setSpan(ForegroundColorSpan(color), 0, span.length, 0)
                             builder.append(span).append("\n")
                         } else {
-                            var flaskText = SpannableStringBuilder(property.name)
+                            val flaskText = SpannableStringBuilder(property.name)
                             for ((index, values) in property.values.withIndex()) {
                                 color = valueColor((values[1] as Double).toInt())
                                 value = values[0].toString()
-                                var divider = "%$index"
-                                var start = indexOf(flaskText, divider)
+                                val divider = "%$index"
+                                val start = indexOf(flaskText, divider)
                                 flaskText.replace(start, start+2, value)
                                 flaskText.setSpan(ForegroundColorSpan(color), start, start + value.length, 0)
+                                if (index != property.values.size-1)  flaskText
                             }
                             builder.append(flaskText).append("\n")
                         }
                     }
                 }
-                itemBaseTextView.setText(builder, TextView.BufferType.SPANNABLE)
+                itemBaseTextView.setText(builder.removeSuffix("\n"), TextView.BufferType.SPANNABLE)
             }
         }
+    }
+
+    private fun prepareImplicit() {
+        val builder = SpannableStringBuilder()
+        val color = ContextCompat.getColor(BaseApp.applicationContext(), R.color.magic)
+        for (implicit in itemInfo.implicitMods) {
+            val span = SpannableString(implicit)
+            span.setSpan(ForegroundColorSpan(color), 0, span.length, 0)
+            builder.append(span).append("\n")
+        }
+        itemImplicitTextView.setText(builder.removeSuffix("\n"), TextView.BufferType.SPANNABLE)
+
+    }
+
+    private fun prepareLabEnchants() {
+        val builder = SpannableStringBuilder()
+        val color = ContextCompat.getColor(BaseApp.applicationContext(), R.color.craftedOrEnchantedMod)
+        for (enchant in itemInfo.enchantedMods) {
+            val span = SpannableString(enchant)
+            span.setSpan(ForegroundColorSpan(color), 0, span.length, 0)
+            builder.append(span).append("\n")
+        }
+        itemLabEnchantTextView.setText(builder.removeSuffix("\n"), TextView.BufferType.SPANNABLE)
+    }
+
+    private fun prepareExplicit() {
+        val builder = SpannableStringBuilder()
+        val explicitModColor = ContextCompat.getColor(BaseApp.applicationContext(), R.color.magic)
+        for (explicit in itemInfo.explicitMods) {
+            val span = SpannableString(explicit)
+            span.setSpan(ForegroundColorSpan(explicitModColor), 0, span.length, 0)
+            builder.append(span).append("\n")
+        }
+        val craftedModsColor = ContextCompat.getColor(BaseApp.applicationContext(), R.color.craftedOrEnchantedMod)
+        for (craft in itemInfo.craftedMods) {
+            val span = SpannableString(craft)
+            span.setSpan(ForegroundColorSpan(craftedModsColor), 0, span.length, 0)
+            builder.append(span).append("\n")
+        }
+        if (itemInfo.corrupted) {
+            val corruptedColor = ContextCompat.getColor(BaseApp.applicationContext(), R.color.corrupted)
+            val span = SpannableString(getString(R.string.corrupted))
+            span.setSpan(ForegroundColorSpan(corruptedColor), 0, span.length, 0)
+            builder.append(span).append("\n")
+        }
+        itemPropertiesTextView.setText(builder.removeSuffix("\n"), TextView.BufferType.SPANNABLE)
     }
 
 
