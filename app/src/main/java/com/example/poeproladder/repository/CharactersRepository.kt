@@ -8,7 +8,8 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 interface CharactersRepository {
+    fun getItemsObservable(): Observable<CharacterItemsDb>
     fun getItemsByName(accountName: String, characterName: String): Observable<CharacterItemsDb>
-    fun getAccountData(accountName: String) : Single<List<CharacterDb>>
+    fun getAccountData(accountName: String, networkIsActive: Boolean?) : Single<List<CharacterDb>>
     fun saveAccountData(characters: List<CharacterWindowCharacterJson>, accountName: String)
 }

@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.example.poeproladder.R
-import com.example.poeproladder.ui.ladder.PassiveTreeFragment
+import com.example.poeproladder.ui.skillgems.SkillGemsFragment
 import com.example.poeproladder.ui.characterselection.CharacterSelectionFragment
 import com.example.poeproladder.ui.inventory.InventoryFragment
 
@@ -15,7 +15,7 @@ class PagerAdapter(private val context: Context, fm: FragmentManager) : Fragment
         return when (position) {
             0 -> CharacterSelectionFragment.newInstance()
             1 -> InventoryFragment.newInstance()
-            2 -> PassiveTreeFragment.newInstance()
+            2 -> SkillGemsFragment.newInstance()
             else -> throw IllegalArgumentException("Position: ${position} is out of range")
         }
     }
@@ -28,7 +28,7 @@ class PagerAdapter(private val context: Context, fm: FragmentManager) : Fragment
         return when (position) {
             0 -> context.getString(R.string.character)
             1 -> context.getString(R.string.inventory)
-            2 -> context.getString(R.string.passives)
+            2 -> context.getString(R.string.skillgems)
             else -> null
         }
     }

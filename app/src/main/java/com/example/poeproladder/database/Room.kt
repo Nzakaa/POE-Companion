@@ -30,8 +30,8 @@ interface ItemsDao {
     fun getItemsByName(characterName: String): Single<CharacterItemsDb>
 
     @Transaction
-    @Query("select * from CharacterDb")
-    fun getAllItems(): Maybe<List<CharacterItemsDb>>
+    @Query("select * from CharacterDb where accountName = :accountName")
+    fun getAllItemsPerAccount(accountName: String): Single<List<CharacterItemsDb>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveItems(items: List<ItemDb>)

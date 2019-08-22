@@ -1,6 +1,5 @@
 package com.example.poeproladder.repository
 
-import android.util.Log
 import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.CharacterItemsDb
 import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
@@ -9,12 +8,23 @@ import com.example.poeproladder.network.CharacterWindowCharacterJson
 import io.reactivex.*
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import retrofit2.HttpException
+import retrofit2.Response
+import javax.inject.Inject
 
-class CharactersRepositoryImpl(
+class CharactersRepositoryImpl @Inject constructor(
     val databaseInteractor: CharacterDatabaseInteractor,
     val networkInteractor: CharacterNetworkInteractor
 ) : CharactersRepository {
-    var disposable: Disposable? = null
+
+    //    @Inject lateinit var databaseInteractor: CharacterDatabaseInteractor
+//    @Inject lateinit var networkInteractor: CharacterNetworkInteractor
+    private var disposable: Disposable? = null
+
+    override fun getItemsObservable(): Observable<CharacterItemsDb> {
+        return databaseInteractor.getCharacterItemsObservable()
+    }
+
     override fun getItemsByName(accountName: String, characterName: String): Observable<CharacterItemsDb> {
         val databaseObservable =
             databaseInteractor.getItemsByName(characterName!!)
@@ -25,16 +35,19 @@ class CharactersRepositoryImpl(
                 .subscribeOn(Schedulers.io())
                 .subscribe({ result ->
                     when {
-                        result.characterItems.isNotEmpty() -> databaseInteractor.observableOnNext(result)
+                        result.characterItems.isNotEmpty() -> {
+                            databaseInteractor.observableOnNext(result)
+                        }
                         else -> {
                             networkObservable
                                 .subscribeOn(Schedulers.io())
-                                .subscribe({result -> databaseInteractor.saveItems(result, characterName)
-                                }, { error -> Log.d("error", "${error.localizedMessage}") })
+                                .subscribe({ response ->
+                                    databaseInteractor.saveItems(response, characterName)
+                                }, { error ->  })
                         }
                     }
                 },
-                    { error -> Log.d("error", "${error.localizedMessage}") })
+                    { error ->  })
         }
         return databaseInteractor.getCharacterItemsObservable()
     }
@@ -43,9 +56,10 @@ class CharactersRepositoryImpl(
         databaseInteractor.saveCharacters(characters, accountName)
     }
 
-    override fun getAccountData(accountName: String): Single<List<CharacterDb>> {
-        return networkInteractor.getCharacters(accountName)
-
+    override fun getAccountData(accountName: String, networkIsActive: Boolean?): Single<List<CharacterDb>> {
+        return if (networkIsActive == true) networkInteractor.getCharacters(accountName)
+        else databaseInteractor.getAllCharactersWithItemsPerAccount(accountName)
+//        return networkInteractor.getCharacters(accountName)
     }
 
     private fun isNetworkInProgress(): Boolean? {
@@ -53,16 +67,16 @@ class CharactersRepositoryImpl(
         return currentDisposable != null && !currentDisposable.isDisposed
     }
 
-    companion object {
-        private var INSTANCE: CharactersRepositoryImpl? = null
-
-        @JvmStatic
-        fun getInstance(
-            databaseInteractor: CharacterDatabaseInteractor,
-            networkInteractor: CharacterNetworkInteractor
-        ): CharactersRepositoryImpl {
-            return INSTANCE ?: CharactersRepositoryImpl(databaseInteractor, networkInteractor)
-                .apply { INSTANCE = this }
-        }
-    }
+//    companion object {
+//        private var INSTANCE: CharactersRepositoryImpl? = null
+//
+//        @JvmStatic
+//        fun getInstance(
+//            databaseInteractor: CharacterDatabaseInteractor,
+//            networkInteractor: CharacterNetworkInteractor
+//        ): CharactersRepositoryImpl {
+//            return INSTANCE ?: CharactersRepositoryImpl(databaseInteractor, networkInteractor)
+//                .apply { INSTANCE = this }
+//        }
+//    }
 }

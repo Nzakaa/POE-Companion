@@ -12,7 +12,7 @@ android {
         applicationId "com.example.poeproladder"
         minSdkVersion 21
         targetSdkVersion 28
-        multiDexEnabled true
+//        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -42,8 +42,13 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     //multidex
-    def multidex_version = "2.0.1"
-    implementation "androidx.multidex:multidex:$multidex_version"
+//    def multidex_version = "2.0.1"
+//    implementation "androidx.multidex:multidex:$multidex_version"
+
+    //Dagger
+    def dagger2_version = '2.24'
+    implementation "com.google.dagger:dagger:$dagger2_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger2_version"
 
     //RxJava
     def version_rxjava = '2.2.10'

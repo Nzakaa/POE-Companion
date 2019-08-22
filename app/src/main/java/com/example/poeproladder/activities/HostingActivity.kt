@@ -18,7 +18,7 @@ import com.example.poeproladder.ui.characterselection.CharacterSelectionFragment
 import com.example.poeproladder.util.hideKeyboard
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_hosting.*
-import kotlinx.android.synthetic.main.fragment_character_selection.*
+import kotlinx.android.synthetic.main.character_selection_fragment.*
 
 class HostingActivity : AppCompatActivity() {
 

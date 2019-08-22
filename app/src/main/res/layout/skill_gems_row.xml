@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                   android:id="@+id/row"
+                                   android:orientation="horizontal"
+                                   android:layout_width="match_parent"
+                                   android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="@dimen/skill_gem_row_icon"
+                android:layout_height="@dimen/skill_gem_row_icon"
+                app:srcCompat="@android:drawable/sym_def_app_icon"
+                android:id="@+id/imageView_link"/>
+        <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="@dimen/skill_gem_row_icon"
+                android:layout_height="@dimen/skill_gem_row_icon"
+                app:srcCompat="@android:drawable/sym_def_app_icon"
+                android:id="@+id/imageView_gem_icon"/>
+        <androidx.appcompat.widget.AppCompatTextView
+                android:text="Gem Name"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/textView_gem_name"
+                android:maxWidth="240dp"
+                app:autoSizeTextType="uniform"
+                android:paddingStart="@dimen/text_padding"
+                android:gravity="start|center_vertical"
+                android:layout_weight="0"/>
+        <androidx.appcompat.widget.AppCompatTextView
+                android:text="Level"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:id="@+id/textView_gem_level"
+                android:paddingStart="@dimen/text_padding"
+                android:paddingEnd="@dimen/text_padding"
+                android:gravity="start|center_vertical"
+                android:layout_weight="1"/>
+</androidx.appcompat.widget.LinearLayoutCompat>

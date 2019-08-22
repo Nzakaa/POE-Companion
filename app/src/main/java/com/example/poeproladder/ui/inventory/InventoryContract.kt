@@ -9,9 +9,11 @@ interface InventoryContract {
         fun showItems(item :HashMap<String, ItemDb>)
         fun showCharacterInfo(character: CharacterDb)
         fun showItem(item: ItemDb)
+        fun showProgressBar(show: Boolean)
     }
 
     interface InventoryPresenter : BaseContract.BasePresenter {
         fun openItemInfo(item: ItemDb)
+        fun onBind()
     }
 }

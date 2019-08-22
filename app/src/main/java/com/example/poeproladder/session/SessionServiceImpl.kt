@@ -1,18 +1,25 @@
 package com.example.poeproladder.session
 
 import android.content.Context
+import android.net.ConnectivityManager
 import android.preference.PreferenceManager
 import com.example.poeproladder.domain.CharacterRequest
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
+import javax.inject.Inject
 
-class SessionServiceImpl(
-    val context: Context
-) : SessionService {
+class SessionServiceImpl: SessionService {
 
     private val characterSubject = BehaviorSubject.create<CharacterRequest>()
     private var account:String = ""
     private var character:String = ""
+    private val context: Context
+
+    @Inject
+    constructor(context: Context) {
+        this.context = context
+    }
+
 
     override fun saveAccount(accountName: String) {
         PreferenceManager.getDefaultSharedPreferences(context)
@@ -21,7 +28,6 @@ class SessionServiceImpl(
             .apply()
 
         account = accountName
-
         updateObservable()
     }
 
@@ -32,7 +38,6 @@ class SessionServiceImpl(
             .apply()
 
         character = characterName
-
         updateObservable()
     }
 
@@ -55,6 +60,11 @@ class SessionServiceImpl(
 
     override fun getCharacterObservable(): Observable<CharacterRequest> {
         return characterSubject
+    }
+
+    override fun getNetworkStatus(): Boolean? {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        return connectivityManager.activeNetworkInfo?.isConnected
     }
 
     private fun updateObservable() {

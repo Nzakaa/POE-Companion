@@ -14,6 +14,7 @@ interface CharacterDatabaseInteractor {
     fun getAccountCharacters(accountName: String): Single<List<CharacterDb>>
     fun saveItems(items: CharacterWindowItemsJson, characterName: String)
     fun getItemsByName(characterName: String): Single<CharacterItemsDb>
+    fun getAllCharactersWithItemsPerAccount(accountName: String): Single<List<CharacterDb>>
     fun getCharacterItemsObservable(): Observable<CharacterItemsDb>
     fun observableOnNext(items: CharacterItemsDb)
 }

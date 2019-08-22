@@ -48,7 +48,7 @@ class ItemInfoDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(context!!)
         val inflater = activity?.layoutInflater
-        val view = inflater?.inflate(R.layout.dialog_item_info, null)
+        val view = inflater?.inflate(R.layout.inventory_dialog_item_info, null)
         view?.let { view -> initViews(view) }
         showItemInfo()
         itemCard.setOnClickListener { dismiss() }

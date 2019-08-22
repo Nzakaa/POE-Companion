@@ -2,6 +2,7 @@ package com.example.poeproladder.database
 
 import androidx.room.*
 import androidx.room.ForeignKey.CASCADE
+import com.example.poeproladder.domain.SkillGemsLinks
 import com.example.poeproladder.network.ItemPropertiesJson
 import com.example.poeproladder.network.ItemSocketJson
 import com.example.poeproladder.network.SocketedItemJson
@@ -19,6 +20,7 @@ data class CharacterDb constructor(
     val level: Int,
     val accountName: String
 )
+
 // TODO ask about managing IDs in room
 @Entity(
     foreignKeys = arrayOf(
@@ -50,7 +52,7 @@ data class ItemDb constructor(
     val itemRarity: Int = -1,  //frameType 0=white, 1=magic, 2=rare, 3=unique
     val inventoryId: String,
     val socketedItems: List<SocketedItemJson> = ArrayList(),
-    val x :Int,
+    val x: Int,
     val explicitMods: List<String> = ArrayList()
 )
 
@@ -63,6 +65,59 @@ class CharacterItemsDb {
     var characterItems: List<ItemDb> = arrayListOf()
 
 }
+
+fun CharacterItemsDb.asCharacterDb(): CharacterDb {
+    return CharacterDb(
+        characterName = character.characterName,
+        classPoe = character.classPoe,
+        league = character.league,
+        accountName = character.accountName,
+        level = character.level
+    )
+}
+
+fun CharacterItemsDb.asSkillGemsLinks(): List<SkillGemsLinks> {
+//    val sortedGems = characterItems.filter { it.socketedItems.isNotEmpty() }
+
+
+    val linksList = characterItems.map {
+
+        var socketsWithGems = ArrayList<Int>()
+        for (socketedGem in it.socketedItems) {
+            socketsWithGems.add(socketedGem.socket)
+        }
+
+        var groupLinks = hashMapOf<Int, Array<SocketedItemJson>>()
+        var lastGroup = 0
+        var group = 0
+        var link = mutableListOf<SocketedItemJson>()
+        if (socketsWithGems.isNotEmpty()) {
+            for ((index, socket) in it.sockets.withIndex()) {
+                lastGroup = group
+                group = socket.group
+                if (group == lastGroup) {
+                    if (socketsWithGems.contains(index))
+                        link.add(it.socketedItems[socketsWithGems.indexOf(index)])
+                } else {
+                    groupLinks.put(lastGroup, link.toTypedArray())
+                    link = mutableListOf()
+                    link.add(it.socketedItems[socketsWithGems.indexOf(index)])
+                    lastGroup = group
+                }
+                if (index == it.sockets.size - 1) groupLinks.put(lastGroup, link.toTypedArray())
+            }
+        }
+
+        SkillGemsLinks(
+            links = groupLinks,
+            inventoryId = it.inventoryId,
+            sockets = socketsWithGems.size
+        )
+    }
+
+    return linksList.filter { it.links.isNotEmpty() }.sortedByDescending { it.sockets }
+}
+
 
 class SocketsTypeConverter {
 

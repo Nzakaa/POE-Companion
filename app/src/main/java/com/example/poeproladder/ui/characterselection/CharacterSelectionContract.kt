@@ -9,6 +9,7 @@ interface CharacterSelectionContract {
     interface CharacterSelectionPresenter : BaseContract.BasePresenter {
         fun getCharacters(accountName: String)
         fun onCharacterPicked(characterName: String)
+        fun onBind()
     }
 
     interface MyAccountView: BaseContract.BaseView {

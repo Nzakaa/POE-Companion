@@ -10,8 +10,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.bumptech.glide.Glide
+import com.example.poeproladder.BaseApp
 
 import com.example.poeproladder.R
+import com.example.poeproladder.dagger.modules.InventoryModule
 import com.example.poeproladder.database.CharacterDatabase
 import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.ItemDb
@@ -20,10 +22,10 @@ import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
 import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractorImpl
 import com.example.poeproladder.interactors.Network.CharacterNetworkInteractor
 import com.example.poeproladder.interactors.Network.CharacterNetworkInteractorImpl
-import com.example.poeproladder.network.Network
 import com.example.poeproladder.repository.CharactersRepository
 import com.example.poeproladder.repository.CharactersRepositoryImpl
-import kotlinx.android.synthetic.main.fragment_inventory.*
+import kotlinx.android.synthetic.main.inventory_fragment.*
+import javax.inject.Inject
 
 
 /**
@@ -32,10 +34,10 @@ import kotlinx.android.synthetic.main.fragment_inventory.*
  */
 class InventoryFragment : Fragment(), InventoryContract.InventoryView {
     //dependency injection
-    private lateinit var database: CharacterDatabase
-    private lateinit var repository: CharactersRepository
-    private lateinit var databaseInteractor: CharacterDatabaseInteractor
-    private lateinit var networkInteractor: CharacterNetworkInteractor
+//    private lateinit var database: CharacterDatabase
+//    private lateinit var repository: CharactersRepository
+//    private lateinit var databaseInteractor: CharacterDatabaseInteractor
+//    private lateinit var networkInteractor: CharacterNetworkInteractor
 
     private lateinit var characterNameTextView: TextView
     private lateinit var characterLevelAndClassTextView: TextView
@@ -59,28 +61,26 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
 
     private var itemViews: HashMap<String, ImageView> = hashMapOf()
 
-    private lateinit var presenter: InventoryPresenter
+    @Inject lateinit var presenter: InventoryPresenter
 
     private var itemInfo: HashMap<String, ItemDb> = hashMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dependencyInjection()
-        presenter = InventoryPresenter(this, repository)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_inventory, container, false)
+        return inflater.inflate(R.layout.inventory_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initViews()
         presenter.onBind()
-
     }
 
     override fun onDestroy() {
@@ -120,6 +120,10 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
             .show()
     }
 
+    override fun showProgressBar(show: Boolean) {
+        //TODO
+    }
+
 
     private fun initViews() {
         characterNameTextView = textView_character_name
@@ -151,13 +155,7 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
     }
 
     private fun dependencyInjection() {
-        database = getDatabase(activity!!.application)
-        databaseInteractor = CharacterDatabaseInteractorImpl
-            .getInstance(database)
-        networkInteractor = CharacterNetworkInteractorImpl
-            .getInstance(database, Network, databaseInteractor)
-        repository = CharactersRepositoryImpl
-            .getInstance(databaseInteractor, networkInteractor)
+        BaseApp.getAppComponent().plus(InventoryModule((this))).inject(this)
     }
 
     companion object {

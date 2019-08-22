@@ -4,25 +4,31 @@ import com.example.poeproladder.BaseApp
 import com.example.poeproladder.database.CharacterItemsDb
 import com.example.poeproladder.database.ItemDb
 import com.example.poeproladder.repository.CharactersRepository
+import com.example.poeproladder.session.SessionService
 import com.example.poeproladder.session.SessionServiceImpl
 import com.example.poeproladder.ui.BaseFragmentPresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-class InventoryPresenter(
+class InventoryPresenter @Inject constructor(
     view: InventoryContract.InventoryView,
-    private val repository: CharactersRepository
-) : BaseFragmentPresenter<InventoryContract.InventoryView>(view), InventoryContract.InventoryPresenter {
+    val repository: CharactersRepository
+) : BaseFragmentPresenter<InventoryContract.InventoryView>(), InventoryContract.InventoryPresenter {
 
-    private val session = BaseApp.session
-    private val itemsObservable = session!!.getCharacterObservable()
+//    private val session = BaseApp.session
+    @Inject lateinit var session: SessionService
+
+    init {
+        this.view = view
+    }
 
     override fun detachView() {
         view = null
     }
 
     override fun onBind() {
-
+        val itemsObservable = session.getCharacterObservable()
         compositeDisposable.add(
             itemsObservable
                 .subscribe({ character ->

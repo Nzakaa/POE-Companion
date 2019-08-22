@@ -6,6 +6,7 @@
     <string name="ladder">Ladder</string>
     <string name="character">Character</string>
     <string name="inventory">Inventory</string>
+    <string name="skillgems">Skill Gems</string>
     <string name="passives">Passives</string>
     <string name="input_account_name">To start importing characters, enter account name</string>
     <string name="change_account">change account</string>

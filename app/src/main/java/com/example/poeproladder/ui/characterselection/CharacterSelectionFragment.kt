@@ -20,25 +20,24 @@ import com.example.poeproladder.BaseApp
 
 import com.example.poeproladder.R
 import com.example.poeproladder.activities.HostingActivity
+import com.example.poeproladder.dagger.modules.CharacterSelectionModule
 import com.example.poeproladder.database.*
 import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
 import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractorImpl
 import com.example.poeproladder.interactors.Network.CharacterNetworkInteractor
 import com.example.poeproladder.interactors.Network.CharacterNetworkInteractorImpl
-import com.example.poeproladder.network.Network
 import com.example.poeproladder.repository.CharactersRepository
 import com.example.poeproladder.repository.CharactersRepositoryImpl
-import com.example.poeproladder.session.SessionService
-import com.example.poeproladder.util.hideKeyboard
-import kotlinx.android.synthetic.main.fragment_character_selection.*
+import kotlinx.android.synthetic.main.character_selection_fragment.*
+import javax.inject.Inject
 
 
 class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAccountView {
     //dependency injection
-    private lateinit var database: CharacterDatabase
-    private lateinit var repository: CharactersRepository
-    private lateinit var databaseInteractor: CharacterDatabaseInteractor
-    private lateinit var networkInteractor: CharacterNetworkInteractor
+//    private lateinit var database: CharacterDatabase
+//    private lateinit var repository: CharactersRepository
+//    private lateinit var databaseInteractor: CharacterDatabaseInteractor
+//    private lateinit var networkInteractor: CharacterNetworkInteractor
 
     private lateinit var accountNameTextView: TextView
     private lateinit var defaultMessageTextView: TextView
@@ -49,20 +48,32 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
 
     private lateinit var hostingActivity: HostingActivity
 
-    private lateinit var presenter: CharacterSelectionPresenter
+//    private lateinit var presenter: CharacterSelectionPresenter
+
+    @Inject
+    lateinit var presenter: CharacterSelectionContract.CharacterSelectionPresenter
+
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        dependencyInjection()
-        presenter = CharacterSelectionPresenter(this, repository)
+//        dependencyInjection()
+        injectDependencies()
+//        presenter.onBind()
+//        presenter = CharacterSelectionPresenter(this, repository)
+    }
+
+    private fun injectDependencies() {
+//        BaseApp.getApplicationComponent().plus(FirstModule(this)).inject(this)
+        BaseApp.getAppComponent()!!.plus(CharacterSelectionModule(this)).inject(this)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_character_selection, container, false)
+        return inflater.inflate(R.layout.character_selection_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -165,15 +176,15 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
         accountNameTextView.text = "${accountName.toUpperCase()}"
     }
 
-    private fun dependencyInjection() {
-        database = getDatabase(activity!!.application)
-        databaseInteractor = CharacterDatabaseInteractorImpl
-            .getInstance(database)
-        networkInteractor = CharacterNetworkInteractorImpl
-            .getInstance(database, Network, databaseInteractor)
-        repository = CharactersRepositoryImpl
-            .getInstance(databaseInteractor, networkInteractor)
-    }
+//    private fun dependencyInjection() {
+//        database = getDatabase(activity!!.application)
+//        databaseInteractor = CharacterDatabaseInteractorImpl
+//            .getInstance(database)
+//        networkInteractor = CharacterNetworkInteractorImpl
+//            .getInstance(database, Network, databaseInteractor)
+//        repository = CharactersRepositoryImpl
+//            .getInstance(databaseInteractor, networkInteractor)
+//    }
 
     companion object {
         @JvmStatic

@@ -1,6 +1,6 @@
 package com.example.poeproladder.domain
 
-class CharacterRequest(
+data class CharacterRequest(
     val accountName: String,
     val characterName: String
 )

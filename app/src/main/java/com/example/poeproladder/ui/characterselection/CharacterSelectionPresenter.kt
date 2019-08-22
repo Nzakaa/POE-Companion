@@ -1,23 +1,25 @@
 package com.example.poeproladder.ui.characterselection
 
-import com.example.poeproladder.BaseApp
-import com.example.poeproladder.BaseContract
-import com.example.poeproladder.database.CharacterDb
-import com.example.poeproladder.database.CharacterItemsDb
 import com.example.poeproladder.repository.CharactersRepository
-import com.example.poeproladder.repository.CharactersRepositoryImpl
-import com.example.poeproladder.session.SessionServiceImpl
+import com.example.poeproladder.session.SessionService
 import com.example.poeproladder.ui.BaseFragmentPresenter
-import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import javax.inject.Inject
 
-class CharacterSelectionPresenter(
+class CharacterSelectionPresenter @Inject constructor(
     view: CharacterSelectionContract.MyAccountView,
-    private val repository: CharactersRepository
-) : BaseFragmentPresenter<CharacterSelectionContract.MyAccountView>(view), CharacterSelectionContract.CharacterSelectionPresenter {
+    val repository: CharactersRepository
+//    val session: SessionService
+) : BaseFragmentPresenter<CharacterSelectionContract.MyAccountView>(), CharacterSelectionContract.CharacterSelectionPresenter {
 
-    private val session = BaseApp.session!!
+//    @Inject lateinit var repository: CharactersRepository
+    @Inject lateinit var session: SessionService
+//    private val session = BaseApp.session!!
+
+    init {
+        this.view = view
+    }
 
     override fun getCharacters(accountName: String) {
         getCharactersFromRepo(accountName)
@@ -40,7 +42,7 @@ class CharacterSelectionPresenter(
 
     private fun getCharactersFromRepo(accountName: String){
         view?.showProgressBar(true)
-        compositeDisposable.add(repository.getAccountData(accountName)
+        compositeDisposable.add(repository.getAccountData(accountName, session.getNetworkStatus())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
