@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.poeproladder.R
 import com.example.poeproladder.database.CharacterDb
 import kotlinx.android.synthetic.main.character_selection_item.view.*

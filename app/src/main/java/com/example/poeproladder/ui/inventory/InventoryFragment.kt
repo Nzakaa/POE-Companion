@@ -2,6 +2,8 @@ package com.example.poeproladder.ui.inventory
 
 
 import android.os.Bundle
+import android.os.SystemClock
+import android.provider.Settings
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,19 +13,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.bumptech.glide.Glide
 import com.example.poeproladder.BaseApp
-
 import com.example.poeproladder.R
 import com.example.poeproladder.dagger.modules.InventoryModule
-import com.example.poeproladder.database.CharacterDatabase
 import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.ItemDb
-import com.example.poeproladder.database.getDatabase
-import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
-import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractorImpl
-import com.example.poeproladder.interactors.Network.CharacterNetworkInteractor
-import com.example.poeproladder.interactors.Network.CharacterNetworkInteractorImpl
-import com.example.poeproladder.repository.CharactersRepository
-import com.example.poeproladder.repository.CharactersRepositoryImpl
 import kotlinx.android.synthetic.main.inventory_fragment.*
 import javax.inject.Inject
 
@@ -33,11 +26,6 @@ import javax.inject.Inject
  *
  */
 class InventoryFragment : Fragment(), InventoryContract.InventoryView {
-    //dependency injection
-//    private lateinit var database: CharacterDatabase
-//    private lateinit var repository: CharactersRepository
-//    private lateinit var databaseInteractor: CharacterDatabaseInteractor
-//    private lateinit var networkInteractor: CharacterNetworkInteractor
 
     private lateinit var characterNameTextView: TextView
     private lateinit var characterLevelAndClassTextView: TextView
@@ -60,8 +48,10 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
     private lateinit var offhand: ImageView
 
     private var itemViews: HashMap<String, ImageView> = hashMapOf()
+    private var itemClickedTime: Long = 0
 
-    @Inject lateinit var presenter: InventoryPresenter
+    @Inject
+    lateinit var presenter: InventoryPresenter
 
     private var itemInfo: HashMap<String, ItemDb> = hashMapOf()
 
@@ -104,7 +94,7 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
 
     override fun showItem(item: ItemDb) {
         val itemInfoDialog = ItemInfoDialog.newInstance(item)
-        itemInfoDialog.show(childFragmentManager, "${item.name}")
+        itemInfoDialog!!.show(childFragmentManager, "${item.name}")
     }
 
     override fun showCharacterInfo(character: CharacterDb) {
@@ -129,21 +119,21 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
         characterNameTextView = textView_character_name
         characterLevelAndClassTextView = textView_level_class
 
-        flask1 = imageView_flask1.also {itemViews.put("flask1", it)}
-        flask2 = imageView_flask2.also {itemViews.put("flask2", it)}
-        flask3 = imageView_flask3.also {itemViews.put("flask3", it)}
-        flask4 = imageView_flask4.also {itemViews.put("flask4", it)}
-        flask5 = imageView_flask5.also {itemViews.put("flask5", it)}
-        helmet = imageView_helm.also {itemViews.put("helm", it)}
-        bodyarmour = imageView_bodyarmour.also {itemViews.put("bodyarmour", it)}
-        boots = imageView_boots.also {itemViews.put("boots", it)}
-        gloves = imageView_gloves.also {itemViews.put("gloves", it)}
-        ring = imageView_ring.also {itemViews.put("ring", it)}
-        ring2 = imageView_ring2.also {itemViews.put("ring2", it)}
-        amulet = imageView_amulet.also {itemViews.put("amulet", it)}
-        belt = imageView_belt.also {itemViews.put("belt", it)}
-        weapon = imageView_weapon.also {itemViews.put("weapon", it)}
-        offhand = imageView_offhand.also {itemViews.put("offhand", it)}
+        flask1 = imageView_flask1.also { itemViews.put("flask1", it) }
+        flask2 = imageView_flask2.also { itemViews.put("flask2", it) }
+        flask3 = imageView_flask3.also { itemViews.put("flask3", it) }
+        flask4 = imageView_flask4.also { itemViews.put("flask4", it) }
+        flask5 = imageView_flask5.also { itemViews.put("flask5", it) }
+        helmet = imageView_helm.also { itemViews.put("helm", it) }
+        bodyarmour = imageView_bodyarmour.also { itemViews.put("bodyarmour", it) }
+        boots = imageView_boots.also { itemViews.put("boots", it) }
+        gloves = imageView_gloves.also { itemViews.put("gloves", it) }
+        ring = imageView_ring.also { itemViews.put("ring", it) }
+        ring2 = imageView_ring2.also { itemViews.put("ring2", it) }
+        amulet = imageView_amulet.also { itemViews.put("amulet", it) }
+        belt = imageView_belt.also { itemViews.put("belt", it) }
+        weapon = imageView_weapon.also { itemViews.put("weapon", it) }
+        offhand = imageView_offhand.also { itemViews.put("offhand", it) }
     }
 
     private fun saveItemsInfo(itemInfo: HashMap<String, ItemDb>) {
@@ -151,7 +141,11 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
     }
 
     private fun onItemClicked(item: ItemDb?) {
-        item?.let { presenter.openItemInfo(item) }
+        if (SystemClock.elapsedRealtime() - itemClickedTime < 800) return
+        else {
+            itemClickedTime = SystemClock.elapsedRealtime()
+            item?.let { presenter.openItemInfo(item) }
+        }
     }
 
     private fun dependencyInjection() {

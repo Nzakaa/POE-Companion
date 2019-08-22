@@ -36,6 +36,7 @@ class CharacterSelectionPresenter @Inject constructor(
 
     private fun getSessionAccount() {
         if (session.getAccount() != "default") {
+            session.getCharacter()
             getCharactersFromRepo(session.getAccount()!!)
         } else view?.showDefaultScreen()
     }

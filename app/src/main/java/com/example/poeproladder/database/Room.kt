@@ -50,17 +50,3 @@ abstract class CharacterDatabase : RoomDatabase() {
     abstract val characterDao: CharacterDao
     abstract val itemsDao: ItemsDao
 }
-
-@Volatile
-private lateinit var INSTANCE: CharacterDatabase
-
-fun getDatabase(context: Context): CharacterDatabase {
-    synchronized(CharacterDatabase::class.java) {
-        if (!::INSTANCE.isInitialized) {
-            INSTANCE = Room.databaseBuilder(context.applicationContext,
-                CharacterDatabase::class.java,
-                "characters").build()
-        }
-    }
-    return INSTANCE
-}

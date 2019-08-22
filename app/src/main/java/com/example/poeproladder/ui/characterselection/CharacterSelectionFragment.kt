@@ -58,14 +58,10 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        dependencyInjection()
         injectDependencies()
-//        presenter.onBind()
-//        presenter = CharacterSelectionPresenter(this, repository)
     }
 
     private fun injectDependencies() {
-//        BaseApp.getApplicationComponent().plus(FirstModule(this)).inject(this)
         BaseApp.getAppComponent()!!.plus(CharacterSelectionModule(this)).inject(this)
     }
 

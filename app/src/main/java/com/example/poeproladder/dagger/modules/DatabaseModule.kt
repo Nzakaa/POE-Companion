@@ -23,13 +23,3 @@ object DatabaseModule {
     }
 }
 
-
-//fun getDatabase(context: Context): CharacterDatabase {
-//    synchronized(CharacterDatabase::class.java) {
-//        if (!::INSTANCE.isInitialized) {
-//            INSTANCE = Room.databaseBuilder(context.applicationContext,
-//                CharacterDatabase::class.java,
-//                "characters").build()
-//        }
-//    }
-//    return INSTANCE
