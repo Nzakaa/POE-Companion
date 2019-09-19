@@ -1,11 +1,9 @@
 package com.example.poeproladder.ui.inventory
 
-import com.example.poeproladder.BaseApp
 import com.example.poeproladder.database.CharacterItemsDb
 import com.example.poeproladder.database.ItemDb
 import com.example.poeproladder.repository.CharactersRepository
 import com.example.poeproladder.session.SessionService
-import com.example.poeproladder.session.SessionServiceImpl
 import com.example.poeproladder.ui.BaseFragmentPresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -16,8 +14,8 @@ class InventoryPresenter @Inject constructor(
     val repository: CharactersRepository
 ) : BaseFragmentPresenter<InventoryContract.InventoryView>(), InventoryContract.InventoryPresenter {
 
-//    private val session = BaseApp.session
-    @Inject lateinit var session: SessionService
+    @Inject
+    lateinit var session: SessionService
 
     init {
         this.view = view
@@ -33,16 +31,17 @@ class InventoryPresenter @Inject constructor(
             itemsObservable
                 .subscribe({ character ->
                     if (character.characterName != "default" && character.accountName != "default")
-                        getItemsFromRepo(character.accountName, character.characterName)
+                        view?.showProgressBar(true)
+                    getItemsFromRepo(character.accountName, character.characterName)
                 }, { error ->
                     view?.showError(error.localizedMessage)
-                }))
+                })
+        )
     }
 
     override fun openItemInfo(item: ItemDb) {
-        view?.let { it.showItem(item) }
+        view?.showItem(item)
     }
-
 
     private fun getItemsFromRepo(accountName: String, characterName: String) {
         compositeDisposable.add(repository.getItemsByName(accountName, characterName)
@@ -59,7 +58,7 @@ class InventoryPresenter @Inject constructor(
 
     private fun convertResponseToItemsDomain(characterItemsDb: CharacterItemsDb)
             : HashMap<String, ItemDb> {
-        var itemInventory: HashMap<String, ItemDb> = HashMap()
+        val itemInventory: HashMap<String, ItemDb> = HashMap()
         for (item in characterItemsDb.characterItems) {
             when {
                 item.inventoryId == "Weapon" -> itemInventory["weapon"] = item

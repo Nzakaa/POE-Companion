@@ -1,34 +1,19 @@
 package com.example.poeproladder.activities
 
-import android.content.Context
 import android.os.Bundle
-import android.text.Editable
-import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.getSystemService
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
-import com.example.poeproladder.BaseApp
 import com.example.poeproladder.R
 import com.example.poeproladder.activities.adapters.PagerAdapter
-import com.example.poeproladder.ui.characterselection.CharacterSelectionFragment
+import com.example.poeproladder.ui.characterselection.FragmentNotVisible
 import com.example.poeproladder.util.hideKeyboard
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_hosting.*
-import kotlinx.android.synthetic.main.character_selection_fragment.*
 
 class HostingActivity : AppCompatActivity() {
 
-    val TAG = "HostingActivity"
-
-
-    //    private lateinit var characterList: List<CharacterDb>
     private lateinit var viewPager: ViewPager
     private lateinit var tabLayout: TabLayout
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +38,8 @@ class HostingActivity : AppCompatActivity() {
 
             override fun onPageSelected(position: Int) {
                 viewPager.hideKeyboard()
+                val frag = pagerAdapter.instantiateItem(viewPager, position)
+                if (frag is FragmentNotVisible) frag.notVisible()
             }
         })
     }

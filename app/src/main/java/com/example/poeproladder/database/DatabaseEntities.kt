@@ -13,7 +13,6 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 @Entity(indices = arrayOf(Index(value = ["characterName"], unique = true)))
 data class CharacterDb constructor(
     @PrimaryKey
-//    var id: Long?,
     val characterName: String,
     val league: String,
     val classPoe: String,
@@ -77,18 +76,17 @@ fun CharacterItemsDb.asCharacterDb(): CharacterDb {
 }
 
 fun CharacterItemsDb.asSkillGemsLinks(): List<SkillGemsLinks> {
-//    val sortedGems = characterItems.filter { it.socketedItems.isNotEmpty() }
 
 
     val linksList = characterItems.map {
 
-        var socketsWithGems = ArrayList<Int>()
+        val socketsWithGems = ArrayList<Int>()
         for (socketedGem in it.socketedItems) {
             socketsWithGems.add(socketedGem.socket)
         }
 
-        var groupLinks = hashMapOf<Int, Array<SocketedItemJson>>()
-        var lastGroup = 0
+        val groupLinks = hashMapOf<Int, Array<SocketedItemJson>>()
+        var lastGroup: Int
         var group = 0
         var link = mutableListOf<SocketedItemJson>()
         if (socketsWithGems.isNotEmpty()) {
@@ -99,10 +97,12 @@ fun CharacterItemsDb.asSkillGemsLinks(): List<SkillGemsLinks> {
                     if (socketsWithGems.contains(index))
                         link.add(it.socketedItems[socketsWithGems.indexOf(index)])
                 } else {
-                    groupLinks.put(lastGroup, link.toTypedArray())
-                    link = mutableListOf()
-                    link.add(it.socketedItems[socketsWithGems.indexOf(index)])
-                    lastGroup = group
+                    if (socketsWithGems.indexOf(index) != -1) {
+                        groupLinks.put(lastGroup, link.toTypedArray())
+                        link = mutableListOf()
+                        link.add(it.socketedItems[socketsWithGems.indexOf(index)])
+                        lastGroup = group
+                    }
                 }
                 if (index == it.sockets.size - 1) groupLinks.put(lastGroup, link.toTypedArray())
             }
@@ -145,7 +145,8 @@ class PropertiesTypeConverter {
         .add(KotlinJsonAdapterFactory())
         .build()
 
-    val listProperties = Types.newParameterizedType(List::class.java, ItemPropertiesJson::class.java)
+    val listProperties =
+        Types.newParameterizedType(List::class.java, ItemPropertiesJson::class.java)
     val jsonAdapter = moshi.adapter<List<ItemPropertiesJson>>(listProperties)
 
     @TypeConverter
@@ -185,7 +186,8 @@ class SocketedItemJsonTypeConverter {
         .add(KotlinJsonAdapterFactory())
         .build()
 
-    val listSocketedItemJson = Types.newParameterizedType(List::class.java, SocketedItemJson::class.java)
+    val listSocketedItemJson =
+        Types.newParameterizedType(List::class.java, SocketedItemJson::class.java)
     val jsonAdapter = moshi.adapter<List<SocketedItemJson>>(listSocketedItemJson)
 
     @TypeConverter

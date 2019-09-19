@@ -10,5 +10,5 @@ interface SessionService {
     fun getCharacter(): String?
     fun getAccount(): String?
     fun getCharacterObservable(): Observable<CharacterRequest>
-    fun getNetworkStatus():Boolean?
+    fun getNetworkStatus():Boolean
 }

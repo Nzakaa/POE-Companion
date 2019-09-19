@@ -6,7 +6,7 @@ import com.example.poeproladder.database.ItemDb
 
 interface InventoryContract {
     interface InventoryView : BaseContract.BaseView {
-        fun showItems(item :HashMap<String, ItemDb>)
+        fun showItems(items :HashMap<String, ItemDb>)
         fun showCharacterInfo(character: CharacterDb)
         fun showItem(item: ItemDb)
         fun showProgressBar(show: Boolean)

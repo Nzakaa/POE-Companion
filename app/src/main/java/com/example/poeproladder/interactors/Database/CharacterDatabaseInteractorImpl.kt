@@ -17,7 +17,6 @@ class CharacterDatabaseInteractorImpl @Inject constructor(
     val database: CharacterDatabase
 ) : CharacterDatabaseInteractor {
 
-    //    @Inject lateinit var database: CharacterDatabase
     private val observable = BehaviorSubject.create<CharacterItemsDb>()
 
     override fun saveCharacters(characters: List<CharacterWindowCharacterJson>, accountName: String) {
@@ -37,6 +36,7 @@ class CharacterDatabaseInteractorImpl @Inject constructor(
 
     override fun saveItems(items: CharacterWindowItemsJson, characterName: String) {
         val itemsDb = items.asDatabaseModel(characterName)
+        database.itemsDao.deleteItems(characterName)
         database.itemsDao.saveItems(itemsDb)
         val disp = getItemsByName(characterName)
             .subscribeOn(Schedulers.io())
@@ -56,17 +56,7 @@ class CharacterDatabaseInteractorImpl @Inject constructor(
         return database.itemsDao.getAllItemsPerAccount(accountName)
             .map { items ->
                 items.filter { it.characterItems.isNotEmpty() }
-                items.map { it.asCharacterDb() }
+                .map { it.asCharacterDb() }
             }
     }
 }
-    //    companion object {
-//        private var INSTANCE: CharacterDatabaseInteractorImpl? = null
-//
-//        @JvmStatic fun getInstance(
-//            database: CharacterDatabase
-//        ): CharacterDatabaseInteractorImpl {
-//            return INSTANCE ?: CharacterDatabaseInteractorImpl(database)
-//                .apply { INSTANCE = this }
-//        }
-//    }

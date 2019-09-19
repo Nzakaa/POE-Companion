@@ -9,11 +9,13 @@
     <dimen name="item_slot_1">45dp</dimen>
     <dimen name="item_slot_2">90dp</dimen>
     <dimen name="item_slot_3">135dp</dimen>
+    <dimen name="item_slot_4">180dp</dimen>
     <dimen name="item_info_padding">8dp</dimen>
     <dimen name="inventory_item_gap">8dp</dimen>
 
     <dimen name="skill_gem_row_icon">30dp</dimen>
     <dimen name="skill_gem_row_icon_half">15dp</dimen>
-
+    
+    <integer name="anim_duration_fast">300</integer>
 
 </resources>

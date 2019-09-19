@@ -2,8 +2,6 @@ package com.example.poeproladder.ui.characterselection
 
 import com.example.poeproladder.BaseContract
 import com.example.poeproladder.database.CharacterDb
-import com.example.poeproladder.database.CharacterItemsDb
-import io.reactivex.Observable
 
 interface CharacterSelectionContract {
     interface CharacterSelectionPresenter : BaseContract.BasePresenter {

@@ -1,14 +1,12 @@
 package com.example.poeproladder.ui.characterselection
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -22,47 +20,33 @@ import com.example.poeproladder.R
 import com.example.poeproladder.activities.HostingActivity
 import com.example.poeproladder.dagger.modules.CharacterSelectionModule
 import com.example.poeproladder.database.*
-import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractor
-import com.example.poeproladder.interactors.Database.CharacterDatabaseInteractorImpl
-import com.example.poeproladder.interactors.Network.CharacterNetworkInteractor
-import com.example.poeproladder.interactors.Network.CharacterNetworkInteractorImpl
-import com.example.poeproladder.repository.CharactersRepository
-import com.example.poeproladder.repository.CharactersRepositoryImpl
+import com.example.poeproladder.util.hideKeyboard
 import kotlinx.android.synthetic.main.character_selection_fragment.*
+import java.util.*
 import javax.inject.Inject
 
 
-class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAccountView {
-    //dependency injection
-//    private lateinit var database: CharacterDatabase
-//    private lateinit var repository: CharactersRepository
-//    private lateinit var databaseInteractor: CharacterDatabaseInteractor
-//    private lateinit var networkInteractor: CharacterNetworkInteractor
+class CharacterSelectionFragment :
+    Fragment(),
+    CharacterSelectionContract.MyAccountView,
+    FragmentNotVisible {
 
     private lateinit var accountNameTextView: TextView
     private lateinit var defaultMessageTextView: TextView
     private lateinit var accountNameEditText: EditText
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
-    private lateinit var searchButton: Button
+
+    private lateinit var adapter: CharacterListAdapter
 
     private lateinit var hostingActivity: HostingActivity
-
-//    private lateinit var presenter: CharacterSelectionPresenter
 
     @Inject
     lateinit var presenter: CharacterSelectionContract.CharacterSelectionPresenter
 
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         injectDependencies()
-    }
-
-    private fun injectDependencies() {
-        BaseApp.getAppComponent()!!.plus(CharacterSelectionModule(this)).inject(this)
     }
 
     override fun onCreateView(
@@ -75,33 +59,8 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initViews()
-
+        setupAccountEditText()
         presenter.onBind()
-
-        accountNameEditText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                searchButton.isEnabled = !s.toString().trim().isEmpty()
-            }
-        })
-
-        searchButton.setOnClickListener {
-            if (accountNameEditText.text.toString() != "") {
-                val requestedAccountName = accountNameEditText.text.toString()
-                accountNameEditText.text = null
-                accountNameEditText.onEditorAction(EditorInfo.IME_ACTION_DONE)
-                accountNameEditText.clearFocus()
-                defaultMessageTextView.visibility = View.GONE
-                presenter.getCharacters(requestedAccountName)
-            } else {
-                showError("Please insert account name")
-            }
-        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -116,17 +75,25 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
     }
 
     override fun showProgressBar(show: Boolean) {
-        if (show)
+        if (show) {
+            recyclerView.visibility = View.INVISIBLE
             progressBar.visibility = View.VISIBLE
-        else
+        } else {
+            recyclerView.visibility = View.VISIBLE
             progressBar.visibility = View.GONE
+        }
     }
 
     override fun showCharacterList(characters: List<CharacterDb>) {
-        val adapter = CharacterListAdapter(characters, { character: CharacterDb -> characterClicked(character) })
+        adapter = CharacterListAdapter(
+            characters,
+            { character: CharacterDb -> characterClicked(character) })
         defaultMessageTextView.visibility = View.GONE
         recyclerView.visibility = View.VISIBLE
         recyclerView.adapter = adapter
+        adapter.notifyDataSetChanged()
+        recyclerView.scrollToPosition(0)
+        runAnimation(recyclerView)
     }
 
     override fun showDefaultScreen() {
@@ -136,6 +103,34 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
 
 
     override fun showError(error: String) {
+        when (error) {
+            "HTTP 404 " -> showAlertDialog("Wrong account name")
+            else -> showAlertDialog(error)
+        }
+    }
+
+    override fun navigateToInventory() {
+        hostingActivity.navigateToPage(HostingActivity.INVENTORYPAGE)
+    }
+
+    override fun notVisible() {
+        accountNameEditText.visibility = View.GONE
+    }
+
+
+    private fun injectDependencies() {
+        BaseApp.getAppComponent().plus(CharacterSelectionModule(this)).inject(this)
+    }
+
+    private fun runAnimation(recyclerView: RecyclerView) {
+        val controller = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_fall_down)
+        recyclerView.layoutAnimation = controller
+        recyclerView.adapter?.notifyDataSetChanged()
+        recyclerView.scheduleLayoutAnimation()
+
+    }
+
+    private fun showAlertDialog(error: String) {
         AlertDialog.Builder(this.context!!)
             .setTitle("Error")
             .setMessage(error)
@@ -143,22 +138,44 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
             .show()
     }
 
-    override fun navigateToInventory() {
-        hostingActivity.navigateToPage(HostingActivity.INVENTORYPAGE)
-    }
-
-
     private fun characterClicked(character: CharacterDb) {
         presenter.onCharacterPicked(character.characterName)
     }
 
+    private fun setupAccountEditText() {
+        accountNameEditText.onEditorAction(EditorInfo.IME_ACTION_DONE)
+
+        accountNameEditText.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                accountNameEditText.hideKeyboard()
+                if (accountNameEditText.text.toString() != "") {
+                    val requestedAccountName = accountNameEditText.text.toString()
+                    accountNameEditText.text = null
+                    accountNameEditText.clearFocus()
+                    defaultMessageTextView.visibility = View.GONE
+                    accountNameEditText.visibility = View.GONE
+                    presenter.getCharacters(requestedAccountName)
+                } else {
+                    showError("Please insert account name")
+                }
+                true
+            } else false
+        }
+    }
+
     private fun initViews() {
-        accountNameTextView = textView_account_name
+        accountNameTextView = textView_account_name.apply {
+            setOnClickListener {
+                if (accountNameEditText.visibility != View.VISIBLE)
+                    accountNameEditText.visibility = View.VISIBLE
+                else accountNameEditText.visibility = View.GONE
+            }
+        }
+
         accountNameEditText = editText_account.apply {
             isFocusableInTouchMode = true
         }
         defaultMessageTextView = textView_default_message
-        searchButton = button_get_account
         progressBar = progressBar_account
 
         recyclerView = recyclerView_character_list.apply {
@@ -169,18 +186,8 @@ class CharacterSelectionFragment : Fragment(), CharacterSelectionContract.MyAcco
     }
 
     override fun showCurrentAccount(accountName: String) {
-        accountNameTextView.text = "${accountName.toUpperCase()}"
+        accountNameTextView.text = accountName.toUpperCase(Locale.getDefault())
     }
-
-//    private fun dependencyInjection() {
-//        database = getDatabase(activity!!.application)
-//        databaseInteractor = CharacterDatabaseInteractorImpl
-//            .getInstance(database)
-//        networkInteractor = CharacterNetworkInteractorImpl
-//            .getInstance(database, Network, databaseInteractor)
-//        repository = CharactersRepositoryImpl
-//            .getInstance(databaseInteractor, networkInteractor)
-//    }
 
     companion object {
         @JvmStatic

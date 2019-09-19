@@ -16,6 +16,7 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.core.widget.TextViewCompat
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.poeproladder.BaseApp
 
 import com.example.poeproladder.R
@@ -29,14 +30,8 @@ import javax.inject.Inject
 
 class SkillGemsFragment : Fragment(), SkillGemsContract.SkillGemsView {
 
-    lateinit var linkImage: AppCompatImageView
-    lateinit var gemImage: AppCompatImageView
-    lateinit var gemNameTV: AppCompatTextView
-    lateinit var gemLevelTV: AppCompatTextView
-
     private lateinit var skillLinks: List<SkillGemsLinks>
     private val generatedIds: HashMap<String, Int> = hashMapOf()
-
 
     @Inject
     lateinit var presenter: SkillGemsContract.SkillGemsPresenter
@@ -44,65 +39,41 @@ class SkillGemsFragment : Fragment(), SkillGemsContract.SkillGemsView {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dependencyInjection()
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.skill_gems_fragment, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-//        val inflater = LayoutInflater.from(BaseApp.applicationContext())
-//        val lLayoutCard = view.findViewById<LinearLayoutCompat>(R.id.lLayout_skill_gem_card)
-//        val cardView = inflater.inflate(R.layout.skill_gems_card_item, lLayoutCard, true)
-//        val lLayoutRow = cardView.findViewById<LinearLayoutCompat>(R.id.lLayout_skill_gem_row)
-//        val firstRow = inflater.inflate(R.layout.skill_gems_row, lLayoutRow, false)
-//        firstRow.findViewById<ImageView>(R.id.imageView_link).apply {
-//            setImageResource(R.drawable.skill_gem_link_start)
-//        }
-//        val secondRow = inflater.inflate(R.layout.skill_gems_row, lLayoutRow, false)
-//        secondRow.findViewById<ImageView>(R.id.imageView_link).apply {
-//            setImageResource(R.drawable.skill_gem_link_mid)
-//        }
-//        val thirdRow = inflater.inflate(R.layout.skill_gems_row, lLayoutRow, false)
-//        thirdRow.findViewById<ImageView>(R.id.imageView_link).apply {
-//            setImageResource(R.drawable.skill_gem_link_end)
-//        }
-//        lLayoutRow.addView(firstRow)
-//        lLayoutRow.addView(secondRow)
-//        lLayoutRow.addView(thirdRow)
-
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
         presenter.onBind()
-//
-//        val thirdRow = inflater.inflate(R.layout.skill_gems_row, lLayoutRow, true)
-//        thirdRow.findViewById<ImageView>(R.id.imageView_link).apply {
-//            setImageResource(R.drawable.skill_gem_link_end)
-//        }
+    }
 
-//        lLayoutCard.addView(cardView)
-//        linkImage.setImageResource(R.drawable.skill_gem_link_start)
-//        linkImage.setImageResource(R.drawable.skill_gem_link_mid)
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.onStop()
+        presenter.detachView()
     }
 
     override fun showSkillGems(links: List<SkillGemsLinks>) {
         skillLinks = links
         val inflater = LayoutInflater.from(BaseApp.applicationContext())
-        val lLayoutCard = view!!.findViewById<LinearLayoutCompat>(R.id.lLayout_skill_gem_card)
-        lLayoutCard.removeAllViews()
+        val lLayoutCard = view?.findViewById<LinearLayoutCompat>(R.id.lLayout_skill_gem_card)
+        lLayoutCard?.removeAllViews()
         for (item in skillLinks) {
             prepareCardForItem(lLayoutCard, inflater, item)
         }
-
-        //TODO proper sorting by links with socketed supports (search with thru both lists, find maximum links then validate what gems inserted, and set link status)
-
     }
 
-    private fun prepareCardForItem(layout: LinearLayoutCompat, infl: LayoutInflater, item: SkillGemsLinks) {
+    private fun prepareCardForItem(
+        layout: LinearLayoutCompat?,
+        infl: LayoutInflater,
+        item: SkillGemsLinks
+    ) {
         val cardView = infl.inflate(R.layout.skill_gems_card_item, layout, false)
         cardView.id = View.generateViewId()
             .also { generatedIds.put("cardViewFor${item.inventoryId}", cardView.id) }
@@ -112,7 +83,7 @@ class SkillGemsFragment : Fragment(), SkillGemsContract.SkillGemsView {
         lLayoutRow.id = View.generateViewId()
             .also { generatedIds.put("llayoutCardViewFor${item.inventoryId}", lLayoutRow.id) }
 
-        layout.addView(cardView)  // TODO after completing card??? looks fine
+        layout?.addView(cardView)
 
         for (key in item.links.keys.sorted()) {
             val socketedSkills = item.links[key]!!
@@ -122,7 +93,12 @@ class SkillGemsFragment : Fragment(), SkillGemsContract.SkillGemsView {
                 else
                     when (row) {
                         0 -> prepareRowForSkill(lLayoutRow, infl, LinkPosition.START, skill)
-                        socketedSkills.size - 1 -> prepareRowForSkill(lLayoutRow, infl, LinkPosition.END, skill)
+                        socketedSkills.size - 1 -> prepareRowForSkill(
+                            lLayoutRow,
+                            infl,
+                            LinkPosition.END,
+                            skill
+                        )
                         else -> prepareRowForSkill(lLayoutRow, infl, LinkPosition.MIDDLE, skill)
                     }
             }
@@ -137,9 +113,12 @@ class SkillGemsFragment : Fragment(), SkillGemsContract.SkillGemsView {
     ) {
         val row = infl.inflate(R.layout.skill_gems_row, container, false)
         row.findViewById<ImageView>(R.id.imageView_link)
-            .apply { setImageResource(linkDrawable) }
+            .apply { setImageDrawable(resources.getDrawable(linkDrawable, context.theme)) }
         row.findViewById<ImageView>(R.id.imageView_gem_icon)
-            .also { Glide.with(this).load(skill.icon).into(it) }
+            .also {
+                Glide.with(this).load(skill.icon).diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                    .into(it)
+            }
         row.findViewById<TextView>(R.id.textView_gem_name)
             .apply { text = skill.name }
 
@@ -147,7 +126,6 @@ class SkillGemsFragment : Fragment(), SkillGemsContract.SkillGemsView {
         var qual = "0"
         for (property in skill.socketedItem) {
             when (property.name) {
-//                "Level" -> stringBuilder.append("(").append(property.values[0][0].toString()).append("/")
                 "Level" -> {
                     level = property.values[0][0].toString()
                     level = level.filter { it.isDigit() }
@@ -159,9 +137,8 @@ class SkillGemsFragment : Fragment(), SkillGemsContract.SkillGemsView {
                 }
             }
         }
-
         row.findViewById<TextView>(R.id.textView_gem_level)
-            .apply { text = "($level/$qual)" }
+            .apply { text = context.getString(R.string.level_quality_tv_gems, level, qual) }
         container.addView(row)
     }
 
@@ -171,13 +148,6 @@ class SkillGemsFragment : Fragment(), SkillGemsContract.SkillGemsView {
             .setMessage(error)
             .setPositiveButton("Ok", null)
             .show()
-    }
-
-    private fun initViews() {
-        linkImage = imageView_link
-        gemImage = imageView_gem_icon
-        gemNameTV = textView_gem_name
-        gemLevelTV = textView_gem_level
     }
 
     private fun dependencyInjection() {

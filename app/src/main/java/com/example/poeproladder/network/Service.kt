@@ -14,5 +14,4 @@ interface CharacterWindowApi {
         @Query("accountName") account: String?,
         @Query("character") characterName: String?
     ): Single<CharacterWindowItemsJson>
-
 }

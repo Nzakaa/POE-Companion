@@ -3,22 +3,30 @@ package com.example.poeproladder.ui.inventory
 
 import android.os.Bundle
 import android.os.SystemClock
-import android.provider.Settings
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.poeproladder.BaseApp
 import com.example.poeproladder.R
 import com.example.poeproladder.dagger.modules.InventoryModule
 import com.example.poeproladder.database.CharacterDb
 import com.example.poeproladder.database.ItemDb
+import io.reactivex.Completable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.inventory_fragment.*
+import java.util.*
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
 
 /**
@@ -29,6 +37,10 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
 
     private lateinit var characterNameTextView: TextView
     private lateinit var characterLevelAndClassTextView: TextView
+
+    private lateinit var progressBar: ProgressBar
+    private lateinit var inventoryContainer: ConstraintLayout
+
 
     private lateinit var flask1: ImageView
     private lateinit var flask2: ImageView
@@ -51,7 +63,7 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
     private var itemClickedTime: Long = 0
 
     @Inject
-    lateinit var presenter: InventoryPresenter
+    lateinit var presenter: InventoryContract.InventoryPresenter
 
     private var itemInfo: HashMap<String, ItemDb> = hashMapOf()
 
@@ -79,27 +91,42 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
         presenter.detachView()
     }
 
-    override fun showItems(item: HashMap<String, ItemDb>) {
-        saveItemsInfo(item)
-        for (itemView in itemViews) {
-            val key = itemView.key
-            val image = itemView.value
-            image.setOnClickListener {
-                view?.let { onItemClicked(itemInfo.get(key)) }
+    override fun showItems(items: HashMap<String, ItemDb>) {
+
+        clearInventory()
+        if (items.isNotEmpty()) {
+            saveItemsInfo(items)
+            for (itemView in itemViews) {
+                val key = itemView.key
+                val image = itemView.value
+                image.setOnClickListener {
+                    view?.let { onItemClicked(itemInfo.get(key)) }
+                }
+                val url = itemInfo.get(key)?.icon
+                if (url != null) {
+                    Glide.with(this)
+                        .load(url)
+                        .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                        .into(itemView.value)
+                }
             }
-            val url = itemInfo.get(key)?.icon
-            Glide.with(this).load(url).into(itemView.value)
+
         }
+
+        val d = Completable.timer(1000, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+            .subscribe { showProgressBar(false) }
+
+
     }
 
     override fun showItem(item: ItemDb) {
         val itemInfoDialog = ItemInfoDialog.newInstance(item)
-        itemInfoDialog!!.show(childFragmentManager, "${item.name}")
+        itemInfoDialog.show(childFragmentManager, item.name)
     }
 
     override fun showCharacterInfo(character: CharacterDb) {
-        characterNameTextView.text = character.characterName
-        characterLevelAndClassTextView.text = "${character.classPoe.capitalize()} Level: ${character.level}"
+        characterNameTextView.text = context?.getString(R.string.character_name_tv_inventory, character.characterName)
+        characterLevelAndClassTextView.text = context?.getString(R.string.character_level_and_class_tv_inventory, character.classPoe.capitalize(), character.level)
     }
 
     override fun showError(error: String) {
@@ -111,13 +138,22 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
     }
 
     override fun showProgressBar(show: Boolean) {
-        //TODO
+        if (show) {
+            progressBar.visibility = View.VISIBLE
+            inventoryContainer.visibility = View.GONE
+        } else {
+            progressBar.visibility = View.GONE
+            inventoryContainer.visibility = View.VISIBLE
+        }
     }
 
 
     private fun initViews() {
         characterNameTextView = textView_character_name
         characterLevelAndClassTextView = textView_level_class
+
+        progressBar = progressBar_inventory
+        inventoryContainer = container_inventory
 
         flask1 = imageView_flask1.also { itemViews.put("flask1", it) }
         flask2 = imageView_flask2.also { itemViews.put("flask2", it) }
@@ -134,6 +170,12 @@ class InventoryFragment : Fragment(), InventoryContract.InventoryView {
         belt = imageView_belt.also { itemViews.put("belt", it) }
         weapon = imageView_weapon.also { itemViews.put("weapon", it) }
         offhand = imageView_offhand.also { itemViews.put("offhand", it) }
+    }
+
+    private fun clearInventory() {
+        itemViews.forEach {
+            it.value.setImageDrawable(null)
+        }
     }
 
     private fun saveItemsInfo(itemInfo: HashMap<String, ItemDb>) {

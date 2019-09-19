@@ -20,3 +20,34 @@ object LinkPosition {
     const val END = R.drawable.skill_gem_link_end
     const val SINGLE = R.drawable.skill_gem_link_single
 }
+
+object ClassPoe {
+    val classIcon: HashMap<String, Int> = hashMapOf(
+        "Shadow" to R.drawable.shadow_avatar,
+        "Witch" to R.drawable.witch_avatar,
+        "Marauder" to R.drawable.marauder_avatar,
+        "Duelist" to R.drawable.duelist_avatar,
+        "Scion" to R.drawable.scion_avatar,
+        "Templar" to R.drawable.templar_avatar,
+        "Saboteur" to R.drawable.saboteur_avatar,
+        "Trickster" to R.drawable.trickster_avatar,
+        "Assassin" to R.drawable.assassin_avatar,
+        "Elementalist" to R.drawable.elementalist_avatar,
+        "Occultist" to R.drawable.occultist_avatar,
+        "Necromancer" to R.drawable.necromancer_avatar,
+        "Berserker" to R.drawable.berserker_avatar,
+        "Juggernaut" to R.drawable.juggernaut_avatar,
+        "Chieftain" to R.drawable.chieftain_avatar,
+        "Champion" to R.drawable.champion_avatar,
+        "Gladiator" to R.drawable.gladiator_avatar,
+        "Slayer" to R.drawable.slayer_avatar,
+        "Ascendant" to R.drawable.ascendant_avatar,
+        "Hierophant" to R.drawable.hierophant_avatar,
+        "Guardian" to R.drawable.guardian_avatar,
+        "Inquisitor" to R.drawable.inquisitor_avatar,
+        "Deadeye" to R.drawable.deadeye_avatar,
+        "Pathfinder" to R.drawable.pathfinder_avatar,
+        "Raider" to R.drawable.raider_avatar
+    )
+
+}

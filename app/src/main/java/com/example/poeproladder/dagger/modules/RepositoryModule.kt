@@ -6,6 +6,7 @@ import com.example.poeproladder.interactors.Network.CharacterNetworkInteractor
 import com.example.poeproladder.interactors.Network.CharacterNetworkInteractorImpl
 import com.example.poeproladder.repository.CharactersRepository
 import com.example.poeproladder.repository.CharactersRepositoryImpl
+import com.example.poeproladder.session.SessionService
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
@@ -35,7 +36,6 @@ object RepositoryModule {
         networkInteractor: CharacterNetworkInteractor,
         databaseInteractor: CharacterDatabaseInteractor
     ): CharactersRepository {
-//        return CharactersRepositoryImpl(databaseInteractor, networkInteractor)
         return CharactersRepositoryImpl(databaseInteractor, networkInteractor)
     }
 }

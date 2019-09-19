@@ -16,8 +16,6 @@ class BaseApp : Application() {
     override fun onCreate() {
         super.onCreate()
         injectDependencies()
-//        session = SessionServiceImpl(applicationContext)
-
     }
 
     private fun injectDependencies() {
@@ -28,7 +26,6 @@ class BaseApp : Application() {
     companion object {
         private var applicationComponent: ApplicationComponent? = null
         private var instance: BaseApp? = null
-//        var session: SessionService? = null
 
         fun applicationContext() : Context {
             return instance!!.applicationContext

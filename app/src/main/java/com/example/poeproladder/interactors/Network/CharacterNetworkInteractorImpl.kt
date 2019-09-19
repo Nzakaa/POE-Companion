@@ -35,18 +35,4 @@ class CharacterNetworkInteractorImpl : CharacterNetworkInteractor {
     override fun getCharacterItems(accountName: String, characterName: String): Single<CharacterWindowItemsJson> {
         return network.getCharacterInfo(accountName, characterName)
     }
-
-//    companion object {
-//        private var INSTANCE: CharacterNetworkInteractorImpl? = null
-//
-//        @JvmStatic fun getInstance(
-//            database: CharacterDatabase,
-//            network: Network,
-//            databaseInteractor: CharacterDatabaseInteractor
-//        ): CharacterNetworkInteractorImpl {
-//            return INSTANCE ?: CharacterNetworkInteractorImpl(database, network, databaseInteractor)
-//                .apply { INSTANCE = this }
-//        }
-//    }
-
 }

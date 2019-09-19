@@ -1,7 +1,6 @@
 package com.example.poeproladder.ui.skillgems
 
 import com.example.poeproladder.database.asSkillGemsLinks
-import com.example.poeproladder.domain.SkillGemsLinks
 import com.example.poeproladder.repository.CharactersRepository
 import com.example.poeproladder.ui.BaseFragmentPresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -17,26 +16,21 @@ class SkillGemsPresenter @Inject constructor(
         this.view = view
     }
 
-
     override fun detachView() {
         view = null
     }
 
     override fun onBind() {
-        val currentCharacterItems = repository.getItemsObservable()
-        val skillGemsInfo = currentCharacterItems.map { items -> items.asSkillGemsLinks() }
+        val currentCharacterItems = repository.getItemsObservable().map { items -> items.asSkillGemsLinks() }
 
-        compositeDisposable.add(skillGemsInfo
+        compositeDisposable.add(currentCharacterItems
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-            view?.showSkillGems(it)
-        }, { error ->
-            showError(error.localizedMessage)
-        }))
-    }
-
-    override fun onStop() {
-//        TODO
+                view?.showSkillGems(it)
+            }, {
+                view?.showError(it.localizedMessage)
+            })
+        )
     }
 }

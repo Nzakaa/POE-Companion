@@ -60,7 +60,6 @@ class ValuesJson(
     val value: Any
 )
 
-// Ask Boris about smart way of getting level and quality values from array of gem properties
 @JsonClass(generateAdapter = true)
 class SocketedItemJson(
     @Json(name = "typeLine") val name: String,
@@ -76,11 +75,9 @@ class ItemCategoryJson(
     val gems: List<String> = ArrayList()
 )
 
-
 /*
     Network to Domain and Database Models converter
 */
-
 
 fun CharacterWindowItemsJson.asDatabaseModel(characterName: String): List<ItemDb> {
     val equippedItems = items.filter {
@@ -119,5 +116,4 @@ fun CharacterWindowCharacterJson.asDatabaseModel(accountName: String): Character
         level = this.level,
         accountName = accountName
     )
-
 }

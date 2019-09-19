@@ -8,17 +8,11 @@ import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 import javax.inject.Inject
 
-class SessionServiceImpl: SessionService {
+class SessionServiceImpl @Inject constructor(private val context: Context) : SessionService {
 
     private val characterSubject = BehaviorSubject.create<CharacterRequest>()
     private var account:String = ""
     private var character:String = ""
-    private val context: Context
-
-    @Inject
-    constructor(context: Context) {
-        this.context = context
-    }
 
 
     override fun saveAccount(accountName: String) {
@@ -43,7 +37,7 @@ class SessionServiceImpl: SessionService {
 
     override fun getCharacter(): String? {
         val characterName = PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(CHARACTER_KEY, "default")
+            .getString(CHARACTER_KEY, "default") ?: return null
         if (characterName != "default") character = characterName
         updateObservable()
         return characterName
@@ -51,8 +45,7 @@ class SessionServiceImpl: SessionService {
 
     override fun getAccount(): String? {
         val accountName = PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(ACCOUNT_KEY, "default")
-
+            .getString(ACCOUNT_KEY, "default") ?: return null
         if (accountName != "default") account = accountName
         updateObservable()
         return accountName
@@ -62,9 +55,10 @@ class SessionServiceImpl: SessionService {
         return characterSubject
     }
 
-    override fun getNetworkStatus(): Boolean? {
+    override fun getNetworkStatus(): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        return connectivityManager.activeNetworkInfo?.isConnected
+        val networkInfo = connectivityManager.activeNetworkInfo
+        return networkInfo != null && networkInfo.isConnected
     }
 
     private fun updateObservable() {

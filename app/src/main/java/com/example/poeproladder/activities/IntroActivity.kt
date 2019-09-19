@@ -14,7 +14,6 @@ class IntroActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_intro)
 
-
         continueButton = findViewById<Button>(R.id.button_continue).apply {
             setOnClickListener { startIntent() }
         }

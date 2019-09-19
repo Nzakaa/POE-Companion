@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#222222</color>
-    <color name="colorPrimaryDark">#131313</color>
-    <color name="colorAccent">#7A7AE6</color>
+    <color name="colorPrimaryDark">#E6131313</color>
+    <color name="colorAccent">#D1D1D1</color>
     <color name="listDivider">#090505</color>
+    <color name="darkBackground">#424242</color>
+    #FF424242
     <!-- Rarity colors -->
     <color name="white">#C8C8C8</color>
     <color name="whiteBackground">#2F2F2F</color>
+    <color name="whiteBackgroundTransp">#CC2F2F2F</color>
     <color name="rare">#FFFF77</color>
     <color name="rareBackground">#333318</color>
     <color name="unique">#AF6025</color>
     <color name="uniqueBackground">#231307</color>
     <color name="magic">#8888FF</color>
+    <color name="cardBack">#998888FF</color>
     <color name="magicBackground">#1B1B33</color>
     <color name="corrupted">#D20000</color>
     <color name="cold">#8888FF</color>
@@ -23,5 +27,7 @@
     <color name="itemCardBackground">#E60A0A0A</color>
     <color name="craftedOrEnchantedMod">#B4B4FF</color>
     <color name="gemlink">#FFFFFF</color>
+    <color name="flaskDivider">#2E231C</color>
+    <color name="uniqueTransparent">#CCD1D1D1</color>
 
 </resources>

@@ -10,12 +10,9 @@ import javax.inject.Inject
 class CharacterSelectionPresenter @Inject constructor(
     view: CharacterSelectionContract.MyAccountView,
     val repository: CharactersRepository
-//    val session: SessionService
 ) : BaseFragmentPresenter<CharacterSelectionContract.MyAccountView>(), CharacterSelectionContract.CharacterSelectionPresenter {
 
-//    @Inject lateinit var repository: CharactersRepository
     @Inject lateinit var session: SessionService
-//    private val session = BaseApp.session!!
 
     init {
         this.view = view

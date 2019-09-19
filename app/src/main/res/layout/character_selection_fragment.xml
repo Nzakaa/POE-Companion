@@ -1,87 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                   xmlns:tools="http://schemas.android.com/tools"
-                                                   tools:context=".ui.characterselection.CharacterSelectionFragment"
-                                                   android:background="#FFFFFF"
-                                                   android:layout_width="match_parent"
-                                                   android:layout_height="match_parent">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/act2_back"
+        tools:context=".ui.characterselection.CharacterSelectionFragment">
 
     <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_character_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintStart_toStartOf="parent"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbars="vertical"
+            app:layout_constraintBottom_toTopOf="@+id/cardView"
             app:layout_constraintEnd_toEndOf="parent"
-            tools:listitem="@layout/character_selection_item"
-            android:id="@+id/recyclerView_character_list"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/cardView"/>
+            tools:listitem="@layout/character_selection_item" />
+
     <TextView
+            android:id="@+id/textView_default_message"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id="@+id/textView_default_message" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp" app:layout_constraintTop_toTopOf="parent"
-            android:text="@string/input_account_name" android:textSize="18sp" android:typeface="normal"
-            android:lineSpacingExtra="8sp" android:textStyle="bold" android:textAllCaps="false"
-            android:textColor="@android:color/black"
-            android:fontFamily="sans-serif" app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginBottom="8dp"
-            android:visibility="gone" android:textAlignment="center"/>
+            android:layout_marginBottom="8dp"
+            android:fontFamily="sans-serif"
+            android:lineSpacingExtra="8sp"
+            android:text="@string/input_account_name"
+            android:textAlignment="center"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:typeface="normal"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.cardview.widget.CardView
+            android:id="@+id/cardView"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
-            android:id="@+id/cardView"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:cardBackgroundColor="@color/uniqueTransparent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
         <androidx.constraintlayout.widget.ConstraintLayout
-                android:orientation="horizontal"
+                android:id="@+id/constraintLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" android:id="@+id/constraintLayout">
+                android:layout_height="match_parent"
+                android:animateLayoutChanges="true"
+                android:orientation="horizontal">
+
             <TextView
-                    android:text="@string/account"
-                    android:layout_margin="8dp"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:id="@+id/textView_account_name"
-                    android:layout_weight="0"
-                    android:textSize="18sp" android:layout_marginBottom="8dp"
-                    app:layout_constraintBottom_toBottomOf="parent" android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"/>
-            <EditText
+                    android:id="@+id/textView_account_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="8dp"
                     android:paddingLeft="8dp"
                     android:paddingRight="8dp"
-                    android:inputType="text"
-                    android:ems="10"
-                    android:id="@+id/editText_account" android:layout_weight="1" android:textSize="18sp"
-                    android:hint="@string/change_account" android:singleLine="true"
-                    app:layout_constraintStart_toEndOf="@+id/textView_account_name"
-                    app:layout_constraintBaseline_toBaselineOf="@+id/textView_account_name"
-                    app:layout_constraintEnd_toStartOf="@+id/button_get_account"/>
-            <Button
-                    android:text="@string/search"
+                    android:text="@string/account"
+                    android:textAlignment="center"
+                    android:textSize="18sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/editText_account"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                    android:id="@+id/editText_account"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/button_get_account" app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:enabled="false"/>
+                    android:layout_marginEnd="8dp"
+                    android:ems="10"
+                    android:hint="@string/change_account"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:paddingLeft="8dp"
+                    android:paddingRight="8dp"
+                    android:singleLine="true"
+                    android:textSize="18sp"
+                    android:visibility="gone"
+                    app:layout_constraintBaseline_toBaselineOf="@+id/textView_account_name"
+                    app:layout_constraintEnd_toEndOf="parent" />
+            <!--<Button-->
+            <!--android:text="@string/search"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@android:color/transparent"-->
+            <!--android:id="@+id/button_get_account"-->
+            <!--app:layout_constraintEnd_toEndOf="parent"-->
+            <!--app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--android:enabled="false"/>-->
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
-    <ProgressBar
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+
+    <androidx.core.widget.ContentLoadingProgressBar
             android:id="@+id/progressBar_account"
-            android:layout_gravity="center"
-            app:layout_constraintTop_toTopOf="parent"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:progressBackgroundTint="@color/black"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="@+id/recyclerView_character_list"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" android:visibility="invisible"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

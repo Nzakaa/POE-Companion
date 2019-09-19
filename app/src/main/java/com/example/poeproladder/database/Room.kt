@@ -1,6 +1,5 @@
 package com.example.poeproladder.database
 
-import android.content.Context
 import androidx.room.*
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -35,6 +34,9 @@ interface ItemsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun saveItems(items: List<ItemDb>)
+
+    @Query("delete from ItemDb where character_name = :characterName")
+    fun deleteItems(characterName: String)
 
     @Query("delete from ItemDb")
     fun deleteAllItems()

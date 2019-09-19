@@ -12,6 +12,13 @@
     <string name="change_account">change account</string>
     <string name="search">search</string>
     <string name="corrupted">Corrupted</string>
+    <string name="poe_companion_welcome_screen">POE Companion</string>
+    <string name="continue_welcome_screen">Continue</string>
+    <string name="character_level_and_class_tv_selection">Level: %1$d %2$s</string>
+    <string name="character_level_and_class_tv_inventory">%1$s Level: %2$d</string>
+    <string name="league_tv_selection">%1$s League</string>
+    <string name="character_name_tv_inventory">%1$s</string>
+    <string name="level_quality_tv_gems">(%1$s/%2$s)</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
