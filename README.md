@@ -6,6 +6,10 @@ gems for chosen character.
   Character data retrieved from Path of Exile API so Path of Exile profile privacy setting must be public.
 Previously viewed characters will be cashed and accessible in a offline mode.
 
+You can try it out using my account name Nzaka
+or any character from public ladder(characters will be visible only if profile is public)
+https://www.pathofexile.com/forum/view-thread/71278
+
 # Screenshots
 <img src="Screenshots/title_poeproladder.png?raw=true" width="260"> <img src="Screenshots/import_account_poeproladder.png?raw=true" width="260"> <img src="Screenshots/character_selection_poeproladder.png?raw=true" width="260"> <img src="Screenshots/inventory_poeproladder.png?raw=true" width="260"> <img src="Screenshots/item_selection_poeproladder.png?raw=true" width="260"> <img src="Screenshots/skill_links_poeproladder.png?raw=true" width="260">
 
