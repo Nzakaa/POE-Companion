@@ -33,6 +33,10 @@ class ItemInfoDialog : DialogFragment() {
 
     lateinit var itemCard: CardView
 
+    // Decided to use args with serialization for my item object to pass data to DialogFragment
+    // instead of doing direct call form dialog to database
+    // because my parent fragment already contains all needed data
+    // and with this approach there is no need to create presenter for dialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.getString("item")?.let {
@@ -49,7 +53,7 @@ class ItemInfoDialog : DialogFragment() {
         val builder = AlertDialog.Builder(context!!)
         val inflater = activity?.layoutInflater
         val view = inflater?.inflate(R.layout.inventory_dialog_item_info, null)
-        view?.let { view -> initViews(view) }
+        view?.let { it -> initViews(it) }
         showItemInfo()
         itemCard.setOnClickListener { dismiss() }
         builder.setView(view)
@@ -67,7 +71,7 @@ class ItemInfoDialog : DialogFragment() {
     }
 
     private fun showItemInfo() {
-        // When flor where for empty field i checking with if and make some rows View.Gone
+        // Dialog layout depends on type of item and item properties.
         prepareTitle()
         if (itemInfo.properties.isNotEmpty()) prepareBaseModes() else itemBaseTextView.visibility = View.GONE
         if (itemInfo.implicitMods.isNotEmpty()) prepareImplicit() else itemImplicitTextView.visibility = View.GONE
@@ -76,9 +80,13 @@ class ItemInfoDialog : DialogFragment() {
             View.GONE
     }
 
+    // For each row that itemDialog has we have to build property name and values
+    // to string with colors according to their rarity
+    // and in some cases background color aswell to look like this
+    // https://raw.githubusercontent.com/Nzakaa/POE-Companion/LocalMainBranch/Screenshots/item_selection_poeproladder.png
     private fun prepareTitle() {
         val builder = SpannableStringBuilder()
-        var color: Int
+        val color: Int
 
         when (itemInfo.itemRarity) {
             0 -> {
@@ -102,7 +110,7 @@ class ItemInfoDialog : DialogFragment() {
                 itemNameTextView.setBackgroundResource(R.color.uniqueBackground)
             }
         }
-        var title = if (itemInfo.name != "") "${itemInfo.name}\n${itemInfo.base}" else "${itemInfo.base}"
+        val title = if (itemInfo.name != "") "${itemInfo.name}\n${itemInfo.base}" else "${itemInfo.base}"
 
         val titleSpan = SpannableString(title)
             .apply {
@@ -167,7 +175,6 @@ class ItemInfoDialog : DialogFragment() {
                                 val start = indexOf(flaskText, divider)
                                 flaskText.replace(start, start + 2, value)
                                 flaskText.setSpan(ForegroundColorSpan(color), start, start + value.length, 0)
-                                if (index != property.values.size - 1) flaskText
                             }
                             builder.append(flaskText).append("\n")
                         }

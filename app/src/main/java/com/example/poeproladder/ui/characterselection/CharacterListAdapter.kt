@@ -12,7 +12,7 @@ import com.example.poeproladder.util.ClassPoe
 import kotlinx.android.synthetic.main.character_selection_item.view.*
 import com.example.poeproladder.R
 
-class CharacterListAdapter(val characters: List<CharacterDb>, val listener: (CharacterDb) -> Unit) : RecyclerView.Adapter<CharacterListAdapter.CharacterViewHolder>() {
+class CharacterListAdapter(val characters: List<CharacterDb>, private val listener: (CharacterDb) -> Unit) : RecyclerView.Adapter<CharacterListAdapter.CharacterViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterViewHolder {
         return CharacterViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.character_selection_item, parent, false))
